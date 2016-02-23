@@ -1,0 +1,30 @@
+NSGA2_MC_ASSIGN input
+!*****************************************************
+<your/path/to>GB1_seq.txt				!sequence file
+2										!number of spectra
+<your/path/to>FRGB1_NCACX_do20.txt		!spectrum 1
+<your/path/to>FRGB1_NCOCX_do20.txt		!spectrum 2
+<your/path/to>GB1_connection.txt		!connection table
+NULL									!initial data file
+<your/path/to>outdata.txt				!output file(data)
+<your/path/to>outtab					!output files(table)
+!*****************************************************
+100		!group size
+80		!gene pool size
+20		!number of steps
+1000	!number of NSGA-ii attempts
+100000	!number of MC attempts
+18		!number of free steps
+0.8		!mutation rate
+0.6		!additional mutation rate
+0.2		!crossover rate
+0.3		!null probability
+0		!minimum w1 (for MC step)
+0		!minimum w2 (for MC step)
+0		!minimum w3 (for MC step)
+0		!minimum w4 (for MC step)
+10		!maximum w1 (for MC step)
+20		!maximum w2 (for MC step)
+3		!maximum w3 (for MC step)
+1		!maximum w4 (for MC step)
+!*****************************************************

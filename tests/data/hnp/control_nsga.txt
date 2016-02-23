@@ -1,0 +1,21 @@
+NSGA2_ASSIGN input
+!*****************************************************
+<your/path/to>hnp_seq.txt			!sequence file
+2									!number of spectra
+<your/path/to>hnp_NCACX.txt			!spectrum 1
+<your/path/to>hnp_NCOCX.txt			!spectrum 2
+<your/path/to>hnp_connection.txt	!connection table
+NULL								!initial data file
+<your/path/to>outdata.txt			!output file(data)
+<your/path/to>outtab				!output files(table)
+!*****************************************************
+100			!group size
+80			!gene pool size
+20			!number of steps
+10000		!number of attempts
+18			!number of free steps
+0.8			!mutation rate
+0.6			!additional mutation rate
+0.2			!crossover rate
+0.3			!null probability
+!*****************************************************
