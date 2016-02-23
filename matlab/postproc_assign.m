@@ -1,12 +1,12 @@
 close all; clear all; clc;
 %%	Input the following data
-file_data = '/Users/yuyang/temp/outdata.txt';   % name and path of the data file
-file_tab = '/Users/yuyang/temp/outtab';     % name and path of the table file
-file_conn = '/Users/yuyang/temp/rhodopsin_98/rho_connection.txt';   % name and path of the connection table
-file_out = '/Users/yuyang/temp/out_cstab.txt';   % name and path of the output file with 90% probability result
+file_data = '/Users/kjf/git/nmrassign/tests/data/gb1_1/outdata.txt';   % name and path of the data file
+file_tab = '/Users/kjf/git/nmrassign/tests/data/gb1_1/output/outtab';     % name and path of the table file
+file_conn = '/Users/kjf/git/nmrassign/tests/data/gb1_1/connection.txt';   % name and path of the connection table
+file_out = '/Users/kjf/git/nmrassign/tests/data/gb1_1/out_cstab.txt';   % name and path of the output file with 90% probability result
 group_size = 100;   % total number of results
 N_tab = 2;      % number of spectra
-N_freq = 5;     % number of frequencies in the table file 
+N_freq = 5;     % number of frequencies in the table file
                 % (for example, N_freq is 3 if the chemical shifts of N, C' and Ca are included in the file)
 %%
 %%	Begin the post-processing
@@ -24,7 +24,7 @@ for k = 1:group_size
     ind = findstr(line, str0);
     if ~isempty(ind)
         B = line(ind+length(str0):end);
-        evl = [evl;str2num(dblnk(B))];
+        evl = [evl;str2num(deblank(B))];
     end
     fclose(fid1);
 end
@@ -113,7 +113,7 @@ for k = 1: N_freq+1
     Tab_info{k} = Tab_temp;
     Sft_info{k} = Sft_temp;
 end
-% 
+%
 % read one of the Pareto-order-1 solutions
 ind_file = ind_pick(1);
 i = floor(ind_file/100);
@@ -150,7 +150,7 @@ for k = 1: N_seq
             eval(['ind_90 = ind_90_',num2str(ind_tab),';']);
             if isempty(find(ind_90 == k))
                 continue;
-            end          
+            end
             shift = Sft_temp(p2);
             if (k+shift)<1 || (k+shift)>N_seq
                 continue;
@@ -183,6 +183,4 @@ for k = 1:N_seq
     fprintf(fileID, '\n');
     %
 end
-fclose(fileID);        
-
-    
+fclose(fileID);

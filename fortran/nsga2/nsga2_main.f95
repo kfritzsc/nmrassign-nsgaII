@@ -44,7 +44,8 @@ program nsga2_main
 	character*20	::	idx_str
 	integer 	new_asg, old_asg
 	real		rand_1, rand_2, rand_3
-	integer	::	timearray(3), new_timearray(3), iseed(1)
+	integer	::	timearray(3), new_timearray(3)
+	integer :: iseed(12)
 	integer	num_new_group, size_all
 	integer	::	ind_k
 	integer	del_note, note_rstr, num_obj
@@ -110,6 +111,7 @@ program nsga2_main
 	read(10, *, iostat=error) 	mutate_ad_rate
 	read(10, *, iostat=error) 	cross_rate
 	read(10, *, iostat=error) 	p_null
+	read(10, *, iostat=error) 	iseed
 	!
 	close(10)
 	!
@@ -354,13 +356,15 @@ program nsga2_main
 	! 								Main Program
 	!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	! ********************* pre-processing *****************************
-	write(*,*)	' Input a random number seed (when 0 is input, it will be generated based on the clock time automatically): '
-	read(*,*)	iseed
-	if (abs(iseed(1)) .lt. 1) then
-		call itime(timearray)
-		iseed = timearray(1)+timearray(2)+timearray(3)
-	end if
-	write(*,*)	'random seed is: ',iseed
+	! write(*,*)	' Input a random number seed (when 0 is input, it will be generated based on the clock time automatically): '
+	! read(*,*)	iseed
+	! if (abs(iseed(1)) .lt. 1) then
+	! 	call itime(timearray)
+	! 	iseed = timearray(1)+timearray(2)+timearray(3)
+	!
+	! 	write(*,*) iseed
+	! end if
+	! write(*,*)	'random seed is: ',iseed
 	call random_seed(put = abs(iseed))
 	!
 	! ***************************** initialize the group members*****************************

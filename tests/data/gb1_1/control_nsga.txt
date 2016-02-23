@@ -1,21 +1,22 @@
 NSGA2_ASSIGN input
 !*****************************************************
-/Users/keithfritzsching/Dropbox/Hong-Lab/nsga2_assign_program/TEST_DATA/GB1_1/GB1_seq.txt			!sequence file
-2																									!number of spectra
-/Users/keithfritzsching/Dropbox/Hong-Lab/nsga2_assign_program/TEST_DATA/GB1_1/FRGB1_NCACX_do20.txt	!spectrum 1
-/Users/keithfritzsching/Dropbox/Hong-Lab/nsga2_assign_program/TEST_DATA/GB1_1/FRGB1_NCOCX_do20.txt	!spectrum 2
-/Users/keithfritzsching/Dropbox/Hong-Lab/nsga2_assign_program/TEST_DATA/GB1_1/GB1_connection.txt	!connection table
-NULL																								!initial data file
-/Users/keithfritzsching/Desktop/gb1testout/outdata.txt												!output file(data)
-/Users/keithfritzsching/Desktop/gb1testout/outtab													!output files(table)
+/Users/kjf/git/nmrassign/tests/data/gb1_1/seq.txt   !sequence file
+2   !number of spectra
+/Users/kjf/git/nmrassign/tests/data/gb1_1/NCACX.txt    !spectrum 1
+/Users/kjf/git/nmrassign/tests/data/gb1_1/NCOCX.txt    !spectrum 2
+/Users/kjf/git/nmrassign/tests/data/gb1_1/connection.txt    !connection table
+NULL    !initial data file
+/Users/kjf/git/nmrassign/tests/data/gb1_1/outdata.txt   !output file(data)
+/Users/kjf/git/nmrassign/tests/data/gb1_1/output/outtab    !output files(table)
 !*****************************************************
-100							!group size
-80							!gene pool size
-20							! number of steps
-10000						! number of attempts:			
-18							! number of free steps:			
-0.8							! mutation rate
-0.6							! additional mutation rate
-0.2							! crossover rate
-0.3							! null probability
+100     !group size
+80      !gene pool size
+20      ! number of steps
+10000   ! number of attempts:
+18      ! number of free steps:
+0.8     ! mutation rate
+0.6     ! additional mutation rate
+0.2     ! crossover rate
+0.3     ! null probability
+1       ! random_seed
 !*****************************************************
