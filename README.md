@@ -9,6 +9,21 @@ al.* [1-2] and Yang *et. al.* [3].
 The primary motivation for the project is to ease the production of input data
 for the multi-objective optimization routines introduced by Yang *et. al.*.
 
+Install
+-------
+
+1. **Install python tools.**
+   ```
+   python setup.py install
+   ```
+
+2. **Compile Fortran tools.**
+   ```
+   cd project path / fortran/nsga2/
+   make
+   ```
+   The Makefile works well with gcc-gfortran from brew.
+
 References
 ----------
 

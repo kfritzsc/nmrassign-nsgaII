@@ -18,10 +18,11 @@ class PeakGroup(object):
     :param num: number of possible assignments, normally 1
     :param assignments: list of possible assignments
     """
-    def __init__(self, peaks, assignments, num=1):
+    def __init__(self, peaks, assignments, degeneracy=1, num_used=0):
         self.peaks = peaks
-        self.num = num
+        self.degeneracy = degeneracy
         self.assignments = assignments
+        self.num_used = num_used
 
     def __str__(self):
         return '{}, {}, {}'.format(self.peaks, self.assignments, self.num)
@@ -29,7 +30,7 @@ class PeakGroup(object):
     def spectrum_line_str(self, delimiter=' '):
         line = [x.poss for x in self.peaks]
         line += [x.width for x in self.peaks]
-        line += [self.num, ''.join(self.assignments)]
+        line += [self.degeneracy, ''.join(self.assignments)]
         return delimiter.join(map(str, line))
 
 
