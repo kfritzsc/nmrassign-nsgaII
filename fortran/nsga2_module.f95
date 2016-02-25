@@ -6,29 +6,28 @@ module nsga2_module
 	private ::	shuffle_y
 
 
-	type	info_spectra
+	type info_spectra
 	!
 	! Spectra Information
 	! ===================
 	!
 
 	! peak numbers of the spectrums
-	integer ::	num_peak = 0
+	integer :: num_peak = 0
 	! numbers of the kinds of chemical shifts
-	integer ::	num_freq = 0
+	integer :: num_freq = 0
 	! chemical shifts
-	real, allocatable ::	ch_shifts(:,:)
+	real, allocatable :: ch_shifts(:,:)
 	! resolution (half width)
 	real, allocatable :: e_width(:,:)
 	! degeneracy number
 	integer, allocatable ::	degeneracy(:)
 	! possible residue corresponding to each peak
-	character*20, allocatable	::	poss_rsd(:)
+	character*20, allocatable :: poss_rsd(:)
 	! the used times of each peak
-	character*100, allocatable	::	poss_rsd_str(:)
+	character*100, allocatable :: poss_rsd_str(:)
 	! number of time the peak was used.
 	integer, allocatable ::	num_used(:)
-
 	! the possible peaks for each residue
 	integer, allocatable ::	peak_seq(:,:)
 	! number of possible peaks for each residue
@@ -105,10 +104,9 @@ module nsga2_module
 	!
 	! cross-over subroutine
 	! =====================
-	!
 	! Choose a random residue p and exchanges the rd_pk(p, ind_table) in parent1
-	! with rsd_pk(p, ind_table) in parent2. The subroutine also evaluates
-	! the two children.
+	! with rsd_pk(p, ind_table) in parent2. The subroutine also evaluates the
+	! two children.
 	!
 	! Input
 	! ----------

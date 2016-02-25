@@ -1,26 +1,38 @@
-program nsgaii_mc_assign
+program assign_nsga2
+
 	use qsort_c_module
 	use nsga2_module
+	use assign_module
 	implicit none
-!	!**************************************************
-	! parameters of typical example (from input)
-	integer	::	n_table				! number of tables(spectrum)
-	character*128 ::	file_sequence, file_initial_group, file_out_data, file_out_tables, file_connection_tab
+
+	! parameters of typical example from input file.
+	character*128 :: file_control
+	integer	::	n_table
+	character*128 :: file_sequence
+	character*128 :: file_initial_group
+	character*128 :: file_out_data
+	character*128 :: file_out_tables
+	character*128 :: file_connection_tab
 	character*128, allocatable :: file_spectra_name(:)
-	!*****************************************************
-	! parameters for calculation process (from input)
-	integer	group_size, pool_size, N_step, N_ga, N_mc, num_free
-	real	mutate_rate, mutate_ad_rate, cross_rate, p_null
-	real	w1_min, w2_min, w3_min, w4_min, w1_max, w2_max, w3_max, w4_max
-	!*****************************************************
-	integer	::	N_seq	! residue sequence length
-	integer, allocatable::	residue_peak(:, :)	! the possible peaks corresponding to each residue
-	type(info_spectra), allocatable	::	info_spectrum(:)	! store the infomation of each table (spectra)
-	character*1, allocatable	::	residue_seq(:)	! the residue sequence
+	integer	:: group_size, pool_size, N_step, N_try, num_free
+	real	:: mutate_rate, mutate_ad_rate, cross_rate, p_null
+	integer :: iseed(12)
+
+	character*128 :: temp_c
+	logical	alive
+
+	! residue sequence length
+	integer	::	N_seq
+	! the possible peaks corresponding to each residue
+	integer, allocatable::	residue_peak(:, :)
+	! store the infomation of each table (spectra)
+	type(info_spectra), allocatable	::	info_spectrum(:)
+	! the residue sequence
+	character*1, allocatable	::	residue_seq(:)
 	integer	::	cnn_row
-	integer, allocatable::	connection_table(:,:) ! the connections in different spectrum
+	! the connections in different spectrum
+	integer, allocatable::	connection_table(:,:)
 	!*****************************************************
-	!
 	type(idv), allocatable	::	parents(:), offsprings(:), temp_p(:)
 	integer, allocatable	::	n_good_all(:), n_edge_all(:), n_bad_all(:), n_used_all(:)
 	integer, allocatable	::	num_set(:), Pareto_set(:), Pareto_order(:), ind_pool(:)
@@ -30,13 +42,11 @@ program nsgaii_mc_assign
 	integer	::	idx_table, ind_new_group
 	integer	:: 	err_sign
 	integer	::	n_good_new, n_edge_new, n_bad_new, n_used_new
-	real	::	w1, w2, w3, w4, delta_w1, delta_w2, delta_w3, delta_w4, delta_S
-	!*****************************************************
-	! records of the evolution process
-	character*80	fmt_s
+	real	::	lucky_ratio
 	!*****************************************************
 	! temperary parameters
-	integer	ind_ns, ind_mc, ind_ga
+	character*80	fmt_s
+	integer	ind_ns, ind_nt
 	type(idv)	::	parents2(2), child1, children2(2)
 	integer i, error, k, k1, k2, k3, k4, k5, p1, p2, p3
 	character*500	seq_temp
@@ -47,7 +57,7 @@ program nsgaii_mc_assign
 	character*20	::	idx_str
 	integer 	new_asg, old_asg
 	real		rand_1, rand_2, rand_3
-	integer	::	timearray(3), new_timearray(3), iseed(12)
+	integer	::	timearray(3), new_timearray(3)
 	integer	num_new_group, size_all
 	integer	::	ind_k
 	integer	del_note, note_rstr, num_obj
@@ -56,77 +66,17 @@ program nsgaii_mc_assign
 	integer,allocatable	::	diff_residue_peak(:)
 	real, allocatable	::	obj_4(:,:), dist_s(:), freq(:,:)
 	integer, allocatable ::	peak_seq_temp(:,:)
-	!
-      	CHARACTER FN*128
-	character*128	::	temp_c
-	logical	alive
-	!*******************************************************************
-	!
-      	write(*,*)  'Enter control file name:'
-      	READ(*, "(A)") FN
-	!
-	inquire(file = FN, exist = alive)
-	if (.not. alive)	then
-		write(*,*)	'Cannot find file: ', FN
-		stop
-	end if
-	!	Read input file (including the files' locations and parameters)
-	open(10, file = FN, status = 'old', action = 'read', iostat = error)
-	!
-	read(10, *)	temp_c
-	temp_c = trim(adjustL(temp_c))
-	if (temp_c(1:15) .ne. 'NSGA2_MC_ASSIGN')	then
-		write(*,*)	'The title of the input file does not begin with"NSGA2_MC_ASSIGN", please check.'
-		stop
-	end if
-	read(10, *)
-	read(10, "(A128)", iostat=error)	temp_c
-	temp_c = trim(adjustL(temp_c))
-	file_sequence = temp_c(1:index(temp_c,' ')-1)
-	read(10, *, iostat=error)	n_table
-	allocate(file_spectra_name(n_table))
-	do k = 1, n_table
-		read(10, "(A128)", iostat=error)	temp_c
-		temp_c = trim(adjustL(temp_c))
-		file_spectra_name(k) = temp_c(1:index(temp_c,' ')-1)
-	end do
-	read(10, "(A128)", iostat=error)	temp_c
-	temp_c = trim(adjustL(temp_c))
-	file_connection_tab = temp_c(1:index(temp_c,' ')-1)
-	read(10, "(A128)", iostat=error)	temp_c
-	temp_c = trim(adjustL(temp_c))
-	file_initial_group = temp_c(1:index(temp_c,' ')-1)
-	read(10, "(A128)", iostat=error)	temp_c
-	temp_c = trim(adjustL(temp_c))
-	file_out_data = temp_c(1:index(temp_c,' ')-1)
-	read(10, "(A128)", iostat=error)	temp_c
-	temp_c = trim(adjustL(temp_c))
-	file_out_tables = temp_c(1:index(temp_c,' ')-1)
-	!
-	read(10, *)
-	read(10, *, iostat=error) 	group_size
-	read(10, *, iostat=error) 	pool_size
-	read(10, *, iostat=error) 	N_step
-	read(10, *, iostat=error) 	N_ga
-	read(10, *, iostat=error) 	N_mc
-	read(10, *, iostat=error) 	num_free
-	read(10, *, iostat=error) 	mutate_rate
-	read(10, *, iostat=error) 	mutate_ad_rate
-	read(10, *, iostat=error) 	cross_rate
-	read(10, *, iostat=error) 	p_null
-	read(10, *, iostat=error) 	w1_min
-	read(10, *, iostat=error) 	w2_min
-	read(10, *, iostat=error) 	w3_min
-	read(10, *, iostat=error) 	w4_min
-	read(10, *, iostat=error) 	w1_max
-	read(10, *, iostat=error) 	w2_max
-	read(10, *, iostat=error) 	w3_max
-	read(10, *, iostat=error) 	w4_max
-	!
-	close(10)
-	!
+
+    write(*,*)  'Enter control file name:'
+    read(*, "(A)") file_control
+
+	call read_control_file(file_control, n_table, file_sequence, &
+		file_initial_group, file_out_data, file_out_tables,  &
+		file_connection_tab, file_spectra_name, group_size, pool_size, N_step, &
+		N_try, num_free, mutate_rate, mutate_ad_rate, cross_rate, p_null, iseed)
+
+
 	! check if inputs are right
-	write(*,*)	'*********************************************************'
 	write(*,*)	'Check the following input: '
 	write(*,*) 	'Sequence file name is: ', trim(file_sequence)
 	write(*,*)	'Number of tables (spectra) is: ', n_table
@@ -143,19 +93,20 @@ program nsgaii_mc_assign
 	write(*,*)	'group size is: ', group_size
 	write(*,*)	'gene pool size is: ', pool_size
 	write(*,*)	'number of steps is: ', N_step
-	write(*,*)	'number of NSGA-II attempts is: ', N_ga
-	write(*,*)	'number of Monte-carlo attempts is: ', N_mc
+	write(*,*)	'number of attempts is: ', N_try
 	write(*,*)	'number of free steps is: ', num_free
 	write(*,*)	'mutation rate is: ', mutate_rate
 	write(*,*)	'additional mutation rate is: ', mutate_ad_rate
 	write(*,*)	'crossover rate is: ', cross_rate
 	write(*,*)	'null probability is: ', p_null
-	write(*,*)	'minimum and maximum values of w1 is: [', w1_min,',',w1_max,']'
-	write(*,*)	'minimum and maximum values of w2 is: [', w2_min,',',w2_max,']'
-	write(*,*)	'minimum and maximum values of w3 is: [', w3_min,',',w3_max,']'
-	write(*,*)	'minimum and maximum values of w4 is: [', w4_min,',',w4_max,']'
 	write(*,*)	'*********************************************************'
 	!
+	!*******************************************************************
+	! check pool_size setting
+	if (pool_size>group_size) then
+		write(*,*) 'wrong setting for pool_size!'
+		stop
+	end if
 	!*******************************************************************
 	allocate(info_spectrum(n_table))
 	allocate(parents(group_size))
@@ -174,12 +125,6 @@ program nsgaii_mc_assign
 	allocate(ind_temp2(2*group_size))
 	allocate(dist_s(2*group_size))
 	allocate(obj_4(2*group_size,4))
-	!*******************************************************************
-	! check gene pool size setting
-	if (pool_size>group_size) then
-		write(*,*) 'wrong setting for pool_size!'
-		stop
-	end if
 	!*******************************************************************
 	! Read the infomation from files
 	!
@@ -267,12 +212,12 @@ program nsgaii_mc_assign
 	! Read the connection table
 	open(10, file = file_connection_tab, status = "old", iostat = error)
 	if(error /= 0) then
-		write(*,*) "Fail to open connection file: ", file_connection_tab
+		write(*,*) "Fail to open connection table file: ", file_connection_tab
 		stop
 	endif
 	read(10, *) cnn_row
 	allocate (connection_table(cnn_row, 6))
-
+	!
 	do k = 1, cnn_row
 		read(10, *) (connection_table(k,i), i = 1, 6)
 	end do
@@ -296,25 +241,25 @@ program nsgaii_mc_assign
 		allocate (peak_seq_temp(info_spectrum(k)%num_peak, N_seq))
 		peak_seq_temp = 0
 		info_spectrum(k)%num_poss_peak = 0
-	!
+		!
 		do i = 1, N_seq
-			k3 = 0
+			k4 = 0
 			do k1 = 1, info_spectrum(k)%num_peak
 				prsd_temp = info_spectrum(k)%poss_rsd(k1)
 				do k2 = 1, lnblnk(prsd_temp)
 					if (residue_seq(i) .eq. prsd_temp(k2:k2)) then
-						k3 = k3 + 1
-						peak_seq_temp(k3,i) = k1
+						k4 = k4 + 1
+						peak_seq_temp(k4,i) = k1
 						exit
 					endif
 				end do
 			end do
-			info_spectrum(k)%num_poss_peak(i) = k3
+			info_spectrum(k)%num_poss_peak(i) = k4
 		end do
-	!
-		k4 = maxval(info_spectrum(k)%num_poss_peak(:))
-		allocate(info_spectrum(k)%peak_seq(k4, N_seq))
-		info_spectrum(k)%peak_seq(1:k4, 1:N_seq) = peak_seq_temp(1:k4, 1:N_seq)
+		!
+		p1 = maxval(info_spectrum(k)%num_poss_peak(:))
+		allocate(info_spectrum(k)%peak_seq(p1, N_seq))
+		info_spectrum(k)%peak_seq(1:p1, 1:N_seq) = peak_seq_temp(1:p1, 1:N_seq)
 		deallocate (peak_seq_temp)
 	end do
 	!
@@ -349,8 +294,8 @@ program nsgaii_mc_assign
 			i = 0
 			prsd_temp = info_spectrum(k)%poss_rsd(k1)
 			do k2 = 1, lnblnk(prsd_temp)
-				k3 = ichar(prsd_temp(k2:k2))
-				if((k3.gt.47).and.(k3.lt.58))	then
+				k4 = ichar(prsd_temp(k2:k2))
+				if((k4.gt.47).and.(k4.lt.58))	then
 					i = i + 1
 					idx_str(i:i) = prsd_temp(k2:k2)
 				endif
@@ -376,11 +321,13 @@ program nsgaii_mc_assign
 	! if (abs(iseed(1)) .lt. 1) then
 	! 	call itime(timearray)
 	! 	iseed = timearray(1)+timearray(2)+timearray(3)
+	!
+	! 	write(*,*) iseed
 	! end if
 	! write(*,*)	'random seed is: ',iseed
 	call random_seed(put = abs(iseed))
 	!
-	! ***************************** initiate the group members*****************************
+	! ***************************** initialize the group members*****************************
 	if (file_initial_group .eq. 'NULL' .or. file_initial_group .eq. 'Null' .or. file_initial_group .eq. 'null') then
 		write(*,*)	'Initialize the group RANDOMLY'
 		do k1 =1, group_size
@@ -424,7 +371,7 @@ program nsgaii_mc_assign
 		endif
 		!
 		read(10,*)	temp_c
-		if (temp_c(1:11) .ne. 'Output_data')	then
+		if (trim(adjustL(temp_c)) .ne. 'Output_data')	then
 			write(*,*)	'The title of the input initial data file does not begin with "Output_data", please check.'
 			stop
 		end if
@@ -436,7 +383,7 @@ program nsgaii_mc_assign
 		end do
 		close(10)
 	end if
-	!--------------------------
+	!----------------------------------------------------------------------
 	!	evaluate the individuals in the group
 	do k1 = 1, group_size
 		residue_peak = parents(k1)%rsd_pk
@@ -456,7 +403,8 @@ program nsgaii_mc_assign
 		obj_4(k1, 1) = parents(k1)%n_good*1.0
 		obj_4(k1, 2) = parents(k1)%n_used*1.0
 		obj_4(k1, 3) = -parents(k1)%n_bad*1.0
-		obj_4(k1, 4) = -parents(k1)%n_edge*1.0
+		obj_4(k1, 4) = 10.0*parents(k1)%n_good-20.0*parents(k1)%n_bad-3.0*parents(k1)%n_edge&
+		&+parents(k1)%n_used
 	end do
 	!
 	num_obj = 4
@@ -476,6 +424,7 @@ program nsgaii_mc_assign
 	!
 	call itime(timearray)
 	write(*,*) 'Begin the evolution at: ', timearray(1), ':', timearray(2), ':', timearray(3)
+	!
 	write(*,*) '--------------------------'
 	write(*,*) 'After initialization: '
 	write(*,*) 'number of good connections range: [', minval(parents(:)%n_good),&
@@ -487,42 +436,10 @@ program nsgaii_mc_assign
 	write(*,*) 'number of used peaks range: [', minval(parents(:)%n_used),&
 	& ', ', maxval(parents(:)%n_used), ']'
 	! ********************* evolution *****************************
-	delta_w1 = (w1_max-w1_min)/N_step
-	delta_w2 = (w2_max-w2_min)/N_step
-	delta_w3 = (w3_max-w3_min)/N_step
-	delta_w4 = (w4_max-w4_min)/N_step
 	do ind_ns = 1, N_step
-		w1 = delta_w1*ind_ns+w1_min
-		w2 = delta_w2*ind_ns+w2_min
-		w3 = delta_w3*ind_ns+w3_min
-		w4 = delta_w4*ind_ns+w4_min
-		! 	MC_SA step	!
-		do ind_mc = 1, N_mc
-			do k = 1, group_size
-				call mutation(parents(k), info_spectrum, connection_table, N_seq, &
-				& n_table, cnn_row, p_null, child1)
-				delta_S = (child1%n_good - parents(k)%n_good)*w1+(parents(k)%n_bad-child1%n_bad)*w2&
-				&+(parents(k)%n_edge-child1%n_edge)*w3+(child1%n_used-parents(k)%n_used)*w4
-				call random_number(rand_1)
-				if (rand_1 .le. exp(delta_S)) then
-					residue_peak = child1%rsd_pk
-					call delete_z_i(residue_peak, parents, offsprings, 0, N_seq, n_table, group_size, del_note)
-					if (del_note .ne. 1)	parents(k) = child1
-				end if
-			end do
-		end do
-		write(*,*) '--------------------------'
-		write(*,*) 'Finish Monte-Carlo attemps on step: ', ind_ns
-		write(*,*) 'number of good connections range: [', minval(parents(:)%n_good),&
-		& ', ', maxval(parents(:)%n_good), ']'
-		write(*,*) 'number of bad connections range: [', minval(parents(:)%n_bad),&
-		& ', ', maxval(parents(:)%n_bad), ']'
-		write(*,*) 'number of edges range: [', minval(parents(:)%n_edge),&
-		& ', ', maxval(parents(:)%n_edge), ']'
-		write(*,*) 'number of used peaks range: [', minval(parents(:)%n_used),&
-		& ', ', maxval(parents(:)%n_used), ']'
-		!	NSGA2 step 	!
-		do ind_ga = 1, N_ga
+		lucky_ratio = exp(-(ind_ns-N_step/2+2)**2/10.0)
+		if (lucky_ratio .lt. 1e-5)	lucky_ratio = 0
+		do ind_nt = 1, N_try
 			! initiate the evaluation values of the parents + offsprings
 			n_good_all = 0
 			n_bad_all = 0
@@ -567,7 +484,6 @@ program nsgaii_mc_assign
 			end if
 			! ******** generate new group ********
 			ind_new_group = 0
-			! mutation & crossover
 			do while (ind_new_group < group_size)
 				call random_number(rand_1)
 				if (rand_1 < cross_rate) then
@@ -595,7 +511,7 @@ program nsgaii_mc_assign
 								residue_peak = children2(k2)%rsd_pk
 								if (ind_new_group .eq. group_size) exit
 								! delete the zero ones & identical one in the group
-								call delete_z_i(residue_peak, parents, offsprings, ind_new_group, N_seq, n_table, &
+								call delete_z_i(residue_peak, parents, offsprings, ind_new_group, N_seq, n_table,&
 								& group_size, del_note)
 								if  (del_note .eq. 1) cycle
 								ind_new_group = ind_new_group + 1
@@ -672,11 +588,12 @@ program nsgaii_mc_assign
 			note_rstr = ind_ns-num_free
 			!
 			call elitism(parents, offsprings, n_good_all, n_bad_all, n_edge_all, n_used_all, group_size, &
-			& N_seq, n_table, note_rstr, temp_p, pareto_order, dist_group)
+			& N_seq, n_table, note_rstr, temp_p, pareto_order, dist_group,lucky_ratio)
 			parents = temp_p
 		end do
 		write(*,*) '--------------------------'
-		write(*,*) 'Finish NSGA-II attempts on step: ', ind_ns
+		write(*,*) 'Finish step: ', ind_ns
+		write(*,*) 'Lucky ratio is: ', lucky_ratio
 		write(*,*) 'number of good connections range: [', minval(parents(:)%n_good),&
 		& ', ', maxval(parents(:)%n_good), ']'
 		write(*,*) 'number of bad connections range: [', minval(parents(:)%n_bad),&
@@ -691,19 +608,17 @@ program nsgaii_mc_assign
 	n_bad_all = 0
 	n_edge_all = 0
 	n_used_all = 0
-	!	When calculate the Pareto order of the final results, use the modified 4 criterion: Ng, Nb, Nu and S0
 	do k1 = 1, group_size
 		obj_4(k1,1) = parents(k1)%n_good*1.0
-		obj_4(k1,2) = parents(k1)%n_used*1.0
-		obj_4(k1,3) = -parents(k1)%n_bad*1.0
-		obj_4(k1,4) = parents(k1)%n_good*10.0-parents(k1)%n_bad*20.0&
-		&-parents(k1)%n_edge*3.0+parents(k1)%n_used*1.0
+		obj_4(k1,2) = parents(k1)%n_good*10.0-parents(k1)%n_bad*20.0-parents(k1)%n_edge*3.0+parents(k1)%n_used*1.0
+		obj_4(k1,3) = parents(k1)%n_used*1.0
+		obj_4(k1,4) = -parents(k1)%n_bad*1.0
 	end do
 	!
 	! sort the group based on the number of bad connections
 	call pareto(obj_4(1:group_size, :), 4, group_size, num_set(1:group_size), Pareto_set(1:group_size), rank)
 	ind_k = 0
-	obj_4(:, 3) = -obj_4(:, 3)
+	obj_4(:, 4) = -obj_4(:, 4)
 	do k2 = 1, rank
 		ind_temp(1:num_set(k2)) = (/(i, i=1,num_set(k2))/)
 		call QsortC(obj_4(ind_k+1: ind_k+num_set(k2), 4), ind_temp(1:num_set(k2)))

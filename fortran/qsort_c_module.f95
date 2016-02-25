@@ -1,10 +1,19 @@
-! Recursive Fortran 95 quicksort routine
-! sorts real numbers into ascending numerical order
-! Author: Juli Rew, SCD Consulting (juliana@ucar.edu), 9/03
-! Based on algorithm from Cormen et al., Introduction to Algorithms,
-! 1997 printing
-
-! Made F conformant by Walt Brainerd
+! Recursive Quicksort in Fortran 95
+! =================================
+! Sort real numbers into ascending numerical order.
+!
+! Author
+! ------
+! Juli Rew, SCD Consulting (juliana@ucar.edu), 9/03
+!
+! Contributor
+! -----------
+! Walt Brainerd, Made F conformant
+!
+! Reference
+! ---------
+! Based on algorithm from Cormen et al., Introduction to Algorithms, 1997
+!
 
 module qsort_c_module
 
@@ -68,14 +77,3 @@ subroutine Partition(A, ind_A, marker)
 end subroutine Partition
 
 end module qsort_c_module
-!
-!program sortdriver
-!  use qsort_c_module
-!  implicit none
-!  integer, parameter :: r = 10
-!  real, dimension(1:r) :: myarray = &        ! (1:r)
-!     (/0, 50, 20, 25, 90, 10, 5, 1, 99, 75/)
-!  print *, "myarray is ", myarray
-!  call QsortC(myarray)
-!  print *, "sorted array is ", myarray
-!end program sortdriver
