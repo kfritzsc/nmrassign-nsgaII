@@ -1,4 +1,4 @@
-program nsgaii_mc_main
+program nsgaii_mc_assign
 	use qsort_c_module
 	use nsga2_module
 	implicit none
@@ -47,7 +47,7 @@ program nsgaii_mc_main
 	character*20	::	idx_str
 	integer 	new_asg, old_asg
 	real		rand_1, rand_2, rand_3
-	integer	::	timearray(3), new_timearray(3), iseed(1)
+	integer	::	timearray(3), new_timearray(3), iseed(12)
 	integer	num_new_group, size_all
 	integer	::	ind_k
 	integer	del_note, note_rstr, num_obj
@@ -154,7 +154,7 @@ program nsgaii_mc_main
 	write(*,*)	'minimum and maximum values of w2 is: [', w2_min,',',w2_max,']'
 	write(*,*)	'minimum and maximum values of w3 is: [', w3_min,',',w3_max,']'
 	write(*,*)	'minimum and maximum values of w4 is: [', w4_min,',',w4_max,']'
-	write(*,*)	'*********************************************************' 
+	write(*,*)	'*********************************************************'
 	!
 	!*******************************************************************
 	allocate(info_spectrum(n_table))
@@ -183,7 +183,7 @@ program nsgaii_mc_main
 	!*******************************************************************
 	! Read the infomation from files
 	!
-	! Get the size of the sequence -- N_seq. 
+	! Get the size of the sequence -- N_seq.
 	! Read sequence into residue_seq(N_seq)
 	open(10, file = file_sequence, status = "old", iostat = error)
 	if(error /= 0) then
@@ -233,7 +233,7 @@ program nsgaii_mc_main
 		allocate (info_spectrum(k)%num_used(num_peak_temp))
 		allocate (info_spectrum(k)%num_poss_peak(N_seq))
 		allocate (info_spectrum(k)%num_poss_rsd(num_peak_temp))
-		
+
 		do i = 1, num_peak_temp
 			read(10,*) (info_spectrum(k)%ch_shifts(i, k1), k1 = 1, num_freq_temp), &
 				&	(info_spectrum(k)%e_width(i, k1), k1 = 1, num_freq_temp), &
@@ -256,7 +256,7 @@ program nsgaii_mc_main
 					p1 = p1+1
 					prsd_temp(p1:p1) = prsd_str(k2:k2)
 				end if
-			end do 
+			end do
 			info_spectrum(k)%poss_rsd(i) = prsd_temp(1:p1)
 		end do
 		write(*,*) 	"Finish reading spectrum", k, "(", num_peak_temp, "peaks,", &
@@ -272,7 +272,7 @@ program nsgaii_mc_main
 	endif
 	read(10, *) cnn_row
 	allocate (connection_table(cnn_row, 6))
-	
+
 	do k = 1, cnn_row
 		read(10, *) (connection_table(k,i), i = 1, 6)
 	end do
@@ -291,7 +291,7 @@ program nsgaii_mc_main
 	!**************************************************************
 	!	generate peak-residue corresponding matrix
 	!	peak_seq(:,k) contains the possible peaks corresponding to the kth residue
-	!	
+	!
 	do k = 1, n_table
 		allocate (peak_seq_temp(info_spectrum(k)%num_peak, N_seq))
 		peak_seq_temp = 0
@@ -305,14 +305,14 @@ program nsgaii_mc_main
 					if (residue_seq(i) .eq. prsd_temp(k2:k2)) then
 						k3 = k3 + 1
 						peak_seq_temp(k3,i) = k1
-						exit 
+						exit
 					endif
-				end do 
-			end do 
+				end do
+			end do
 			info_spectrum(k)%num_poss_peak(i) = k3
-		end do 
+		end do
 	!
-		k4 = maxval(info_spectrum(k)%num_poss_peak(:))	
+		k4 = maxval(info_spectrum(k)%num_poss_peak(:))
 		allocate(info_spectrum(k)%peak_seq(k4, N_seq))
 		info_spectrum(k)%peak_seq(1:k4, 1:N_seq) = peak_seq_temp(1:k4, 1:N_seq)
 		deallocate (peak_seq_temp)
@@ -364,20 +364,20 @@ program nsgaii_mc_main
 					parents(k2)%rsd_pk(k3, k) = k1
 				end do
 			endif
-		end do				
+		end do
 	end do
 	!
 	!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	! 								Main Program
 	!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	! ********************* pre-processing *****************************
-	write(*,*)	' Input a random number seed (when 0 is input, it will be generated based on the clock time automatically): '
-	read(*,*)	iseed
-	if (abs(iseed(1)) .lt. 1) then
-		call itime(timearray)
-		iseed = timearray(1)+timearray(2)+timearray(3)
-	end if
-	write(*,*)	'random seed is: ',iseed
+	! write(*,*)	' Input a random number seed (when 0 is input, it will be generated based on the clock time automatically): '
+	! read(*,*)	iseed
+	! if (abs(iseed(1)) .lt. 1) then
+	! 	call itime(timearray)
+	! 	iseed = timearray(1)+timearray(2)+timearray(3)
+	! end if
+	! write(*,*)	'random seed is: ',iseed
 	call random_seed(put = abs(iseed))
 	!
 	! ***************************** initiate the group members*****************************
@@ -449,7 +449,7 @@ program nsgaii_mc_main
 	end do
 	!
 	!	calculate the pareto_order
-	Pareto_set = 0 
+	Pareto_set = 0
 	num_set = 0
 	obj_4 = 0.0
 	do k1 = 1, group_size
@@ -468,12 +468,12 @@ program nsgaii_mc_main
 		ind_temp2(1: num_set(k1)) = Pareto_set(ind_temp)
 		call crowd_dist(obj_4(ind_temp2(1:num_set(k1)), 1:num_obj), num_obj, num_set(k1), dist_s(1:num_set(k1)))
 		ind_k = ind_k+num_set(k1)
-		do k2 = 1, num_set(k1) 
+		do k2 = 1, num_set(k1)
 			Pareto_order(ind_temp2(k2)) = k1
 			dist_group(ind_temp2(k2)) = dist_s(k2)
 		end do
 	end do
-	! 
+	!
 	call itime(timearray)
 	write(*,*) 'Begin the evolution at: ', timearray(1), ':', timearray(2), ':', timearray(3)
 	write(*,*) '--------------------------'
@@ -576,7 +576,7 @@ program nsgaii_mc_main
 					call random_number(rand_3)
 					p1 = int(rand_2*pool_size)+1
 					p2 = int(rand_3*pool_size)+1
-					do while (p1 .eq. p2) 
+					do while (p1 .eq. p2)
 						call random_number(rand_3)
 						p2 = int(rand_3*pool_size)+1
 					end do
@@ -628,7 +628,7 @@ program nsgaii_mc_main
 						n_good_all(group_size+ind_new_group) = child1%n_good
 						n_bad_all(group_size+ind_new_group) = child1%n_bad
 						n_edge_all(group_size+ind_new_group) = child1%n_edge
-						n_used_all(group_size+ind_new_group) = child1%n_used 
+						n_used_all(group_size+ind_new_group) = child1%n_used
 					end if
 				end if
 				if (ind_new_group .eq. group_size) exit
@@ -644,7 +644,7 @@ program nsgaii_mc_main
 						if (rand_3 .ge. 0.5)	then
 							call mutation_ad_2(parents(ind_pool(p1)), info_spectrum, connection_table, &
 							& N_seq, n_table, cnn_row, child1, err_sign)
-						else	
+						else
 							call mutation_ad_1(parents(ind_pool(p1)), info_spectrum, connection_table, &
 							& N_seq, n_table, cnn_row, child1, err_sign)
 						end if
@@ -743,7 +743,7 @@ program nsgaii_mc_main
 			write(10,*) parents(i)%rsd_pk(:, k1)
 		end do
 	end do
-	close(10) 
+	close(10)
 	!
 	allocate(freq(n_table, info_spectrum(1)%num_freq))
 	write(fmt_s,'(ai1ai1aa)') '(i4, a2,(',n_table,'(i4,',info_spectrum(1)%num_freq,'f8.1)),a6)'
@@ -796,7 +796,7 @@ program nsgaii_mc_main
 						k4 = k4+1
 						prsd_temp(k4:k4) = prsd_str(k3:k3)
 					end if
-				end do				
+				end do
 			end do
 			prsd_str = prsd_temp
 			do k3 = lnblnk(prsd_temp), 2, -1
@@ -816,4 +816,3 @@ program nsgaii_mc_main
 	!
 	deallocate(freq)
 end program
-	

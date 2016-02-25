@@ -13,7 +13,9 @@ FCFLAGS = -O3
 # LDFLAGS = -li_need_this_lib
 
 # List of executables to be built within the package
-PROGRAMS = nsga2_main
+PROGRAMS = nsga2_assign
+# nsga2_mc_assign
+
 
 # "make" builds all
 all: $(PROGRAMS)
@@ -26,11 +28,12 @@ all: $(PROGRAMS)
 
 #$part4
 # Using Fortran MODULES:
-nsga2_main.o: qsort_c_module.o
-nsga2_main: qsort_c_module.o
+nsga2_assign.o: qsort_c_module.o nsga2_module.o
+nsga2_assign: qsort_c_module.o nsga2_module.o
 
-nsga2_main.o: nsga2_module.o
-nsga2_main: nsga2_module.o
+# nsga2_mc_assign.o: qsort_c_module.o nsga2_module.o
+# nsga2_mc_assign: qsort_c_module.o nsga2_module.o
+
 
 
 # General rules

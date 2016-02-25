@@ -1,17 +1,29 @@
-program nsga2_main
+program nsga2_assign
+
 	use qsort_c_module
 	use nsga2_module
 	implicit none
-	!
-!	!**************************************************
-	! parameters of typical example (from input)
-	integer	::	n_table				! number of tables(spectrum)
-	character*128 ::	file_sequence, file_initial_group, file_out_data, file_out_tables, file_connection_tab
+
+	! parameters of typical example from input file.
+	character*128 :: FN
+	character*128 :: temp_c
+	logical	alive
+
+	! number of tables(spectrum)
+	integer	::	n_table
+	character*128 :: file_sequence
+	character*128 :: file_initial_group
+	character*128 :: file_out_data
+	character*128 :: file_out_tables
+	character*128 :: file_connection_tab
 	character*128, allocatable :: file_spectra_name(:)
-	!*****************************************************
+
 	! parameters for calculation process (from input)
-	integer	group_size, pool_size, N_step, N_try, num_free
-	real	mutate_rate, mutate_ad_rate, cross_rate, p_null
+	integer	:: group_size, pool_size, N_step, N_try, num_free
+	real	:: mutate_rate, mutate_ad_rate, cross_rate, p_null
+	integer :: iseed(12)
+
+
 	!*****************************************************
 	integer	::	N_seq	! residue sequence length
 	integer, allocatable::	residue_peak(:, :)	! the possible peaks corresponding to each residue
@@ -45,7 +57,6 @@ program nsga2_main
 	integer 	new_asg, old_asg
 	real		rand_1, rand_2, rand_3
 	integer	::	timearray(3), new_timearray(3)
-	integer :: iseed(12)
 	integer	num_new_group, size_all
 	integer	::	ind_k
 	integer	del_note, note_rstr, num_obj
@@ -54,14 +65,9 @@ program nsga2_main
 	integer,allocatable	::	diff_residue_peak(:)
 	real, allocatable	::	obj_4(:,:), dist_s(:), freq(:,:)
 	integer, allocatable ::	peak_seq_temp(:,:)
-	!
-      	CHARACTER FN*128
-	character*128	::	temp_c
-	logical	alive
-	!*******************************************************************
-	!
-      	write(*,*)  'Enter control file name:'
-      	READ(*, "(A)") FN
+
+    write(*,*)  'Enter control file name:'
+    read(*, "(A)") FN
 	!
 	inquire(file = FN, exist = alive)
 	if (.not. alive)	then
