@@ -28,8 +28,8 @@ all: $(PROGRAMS)
 
 #$part4
 # Using Fortran MODULES:
-assign_nsga2.o: qsort_c_module.o nsga2_module.o assign_module.o
-assign_nsga2: qsort_c_module.o nsga2_module.o assign_module.o
+assign_nsga2.o: qsort_c_module.o assign_module.o nsga2_module.o
+assign_nsga2: qsort_c_module.o assign_module.o nsga2_module.o
 
 # nsga2_mc_assign.o: qsort_c_module.o nsga2_module.o
 # nsga2_mc_assign: qsort_c_module.o nsga2_module.o
