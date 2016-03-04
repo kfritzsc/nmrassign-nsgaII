@@ -1,7 +1,8 @@
 module assign_module
 
 	implicit none
-	public :: read_control_file, read_sequence_file
+	public :: read_control_file, read_sequence_file, evaluate_group, &
+		delete_z_i, write_tables
 
 	type info_spectra
 	!
@@ -672,5 +673,183 @@ module assign_module
 		end do
 
 	end subroutine evaluate_group
+
+	subroutine delete_z_i(residue_peak, parents, offsprings, ind_new_group, &
+		N_seq, n_table, size_group, del_note)
+	!
+	! Delete Individuals with zero
+	! ============================
+	!
+	! Delete the all-zero individuals and identical ones in the group.
+	!
+	! Input
+	! -----
+	! N_seq
+	! n_table
+	! size_group
+	! residue_peak(N_seq, n_table)
+	! parents(size_group)
+	! offsprings(size_group)
+	!
+	! Output
+	! ------
+	! parents(size_group), offsprings(size_group)
+	! del_note
+	!
+	implicit none
+
+	integer, intent(in) ::	N_seq, n_table, size_group, ind_new_group
+	integer, intent(in) ::	residue_peak(N_seq, n_table)
+	type(idv), intent(in) :: parents(size_group), offsprings(size_group)
+	integer, intent(out) ::	del_note
+
+	integer ::	diff_residue_peak(N_seq)
+	integer	k, i
+
+	! delete the zero ones & identical one in the group
+	if (all(residue_peak .eq. 0)) then
+		del_note = 1
+		return
+	end if
+	do k = 1, size_group
+		del_note = 1
+		do i = 1, n_table
+			diff_residue_peak = parents(k)%rsd_pk(:, i) - residue_peak(:, i)
+			if (all(diff_residue_peak .eq. 0)) cycle
+			del_note = 0
+			exit
+		end do
+		if (del_note .eq. 0) cycle
+		exit
+	end do
+	if (del_note .eq. 1) then
+		return
+	end if
+
+	if (ind_new_group > 1) then
+		do k = 1, ind_new_group
+			del_note = 1
+			do i = 1, n_table
+				diff_residue_peak = offsprings(k)%rsd_pk(:, i)-residue_peak(:, i)
+				if (all(diff_residue_peak .eq. 0)) then
+					cycle
+				end if
+				del_note = 0
+				exit
+			end do
+			if (del_note .eq. 0) cycle
+			exit
+		end do
+		if (del_note .eq. 1) then
+			return
+		end if
+	end if
+	end subroutine delete_z_i
+
+
+subroutine write_output(file_out_data, group_size, n_table, parents)
+
+	integer, intent(in) :: group_size, n_table
+	character(len=128), intent(in) :: file_out_data
+	type(idv), intent(in) :: parents(n_table)
+
+	integer :: i, k1
+
+	open(10, file = file_out_data)
+	write(10,*)	 'Output_data'
+	do i = 1, group_size
+		do k1 = 1, n_table
+			write(10,*) parents(i)%rsd_pk(:, k1)
+		end do
+	end do
+	close(10)
+end subroutine
+
+
+subroutine write_tables(group_size, N_seq, n_table, file_out_tables, parents, &
+	Pareto_order, info_spectrum, residue_seq)
+
+	integer, intent(in) :: group_size, N_seq, n_table
+	character(len=128), intent(in) :: file_out_tables
+	type(idv), intent(in) :: parents(group_size)
+	integer, intent(in) :: Pareto_order(group_size)
+	type(info_spectra), intent(in) :: info_spectrum(n_table)
+	character(len=1), intent(in):: residue_seq(N_seq)
+
+	real:: freq(n_table, info_spectrum(1)%num_freq)
+	integer :: i, k1, k2, k3, k4, k5, p1, p2, p3
+	integer	::	idx_table
+	integer	lock_n, bg_n, k_peak
+	character(len=100) :: prsd_str, prsd_temp
+	character(len=20) :: idx_str
+	character(len=80) :: fmt_s
+
+	i = 0
+	do k1 = 1, group_size
+		i = i+1
+		p1 = i/100
+		p2 = (i-p1*100)/10
+		p3 = i-p1*100-p2*10
+		open(11, file = trim(adjustL(file_out_tables))//achar(48+p1)//achar(48+p2)//achar(48+p3)//'.txt')
+		write(11,"('Ng, Nb, Ne, Nu and Pareto order: 'I4,2x,I4,2x,I4,2x,I4,2x,I3)") parents(i)%n_good, parents(i)%n_bad, parents(i)%n_edge, parents(i)%n_used, Pareto_order(k1)
+		do k2 = 1, N_seq
+			prsd_temp = ''
+			k4 = 0
+			do idx_table = 1, n_table
+				if (parents(k1)%rsd_pk(k2, idx_table) .ne. 0) then
+					do k3 = 1, info_spectrum(idx_table)%num_freq
+						freq(idx_table,k3) = info_spectrum(idx_table)%ch_shifts(parents(k1)%rsd_pk(k2, idx_table),k3)
+						if (freq(idx_table, k3) .ge. 1000)	freq(idx_table, k3) = 0.0
+					end do
+				else
+					freq(idx_table,:) = 0
+				end if
+				k_peak = parents(k1)%rsd_pk(k2, idx_table)
+				prsd_str = info_spectrum(idx_table)%poss_rsd_str(k_peak)
+				lock_n = 0
+				bg_n = 0
+				do k3 = 1, lnblnk(prsd_str)
+					if (prsd_str(k3:k3) .eq. '(') then
+						lock_n = 1
+						cycle;
+					elseif (prsd_str(k3:k3) .eq. ')') then
+						lock_n = 0
+						bg_n = 0
+						cycle;
+					end if
+					if (prsd_str(k3:k3) .eq. residue_seq(k2)) then
+						if (lock_n == 0) then
+							bg_n = 1
+							cycle;
+						end if
+					else
+						if (lock_n == 0) then
+							bg_n = 0
+							cycle;
+						end if
+					end if
+					if (lock_n .eq. 1 .and. bg_n .eq. 1) then
+						k4 = k4+1
+						prsd_temp(k4:k4) = prsd_str(k3:k3)
+					end if
+				end do
+			end do
+			prsd_str = prsd_temp
+			do k3 = lnblnk(prsd_temp), 2, -1
+				do k5 = 1, k3-1
+					if (prsd_temp(k3:k3) .eq. prsd_temp(k5:k5)) then
+						prsd_str = prsd_str(1:k3-1)//prsd_str(k3+1:k4)
+						k4 = k4-1
+						exit
+					end if
+				end do
+			end do
+			write(11,fmt_s) k2, residue_seq(k2), (parents(k1)%rsd_pk(k2, idx_table), &
+				freq(idx_table,:), idx_table = 1, n_table), prsd_str(1:k4)
+		end do
+		close(11)
+	end do
+
+end subroutine write_tables
 
 end module

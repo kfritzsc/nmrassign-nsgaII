@@ -125,9 +125,6 @@ program assign_nsga2
 	! Read the infomation from files
 	call read_sequence_file(file_sequence, N_seq, residue_seq)
 
-	! write(*,*)'Input sequence has ', N_seq, ' residues: ', &
-	!	(residue_seq(k), k=1,N_seq)
-
 	allocate (residue_peak(N_seq, n_table))
 	allocate (diff_residue_peak(N_seq))
 
@@ -154,8 +151,8 @@ program assign_nsga2
 		obj_4(k1, 1) = parents(k1)%n_good*1.0
 		obj_4(k1, 2) = parents(k1)%n_used*1.0
 		obj_4(k1, 3) = -parents(k1)%n_bad*1.0
-		obj_4(k1, 4) = 10.0*parents(k1)%n_good-20.0*parents(k1)%n_bad-3.0*parents(k1)%n_edge&
-		&+parents(k1)%n_used
+		obj_4(k1, 4) = 10.0*parents(k1)%n_good - 20.0*parents(k1)%n_bad - &
+			3.0 * parents(k1)%n_edge + parents(k1)%n_used
 	end do
 	!
 	num_obj = 4
@@ -172,21 +169,21 @@ program assign_nsga2
 			dist_group(ind_temp2(k2)) = dist_s(k2)
 		end do
 	end do
-	!
-	call itime(timearray)
-	write(*,*) 'Begin the evolution at: ', timearray(1), ':', timearray(2), ':', timearray(3)
-	!
-	write(*,*) '--------------------------'
-	write(*,*) 'After initialization: '
-	write(*,*) 'number of good connections range: [', minval(parents(:)%n_good),&
-	& ', ', maxval(parents(:)%n_good), ']'
-	write(*,*) 'number of bad connections range: [', minval(parents(:)%n_bad),&
-	& ', ', maxval(parents(:)%n_bad), ']'
-	write(*,*) 'number of edges range: [', minval(parents(:)%n_edge),&
-	& ', ', maxval(parents(:)%n_edge), ']'
-	write(*,*) 'number of used peaks range: [', minval(parents(:)%n_used),&
-	& ', ', maxval(parents(:)%n_used), ']'
-	! ********************* evolution *****************************
+
+	! call itime(timearray)
+	! write(*,*) 'Begin the evolution at: ', timearray(1), ':', timearray(2), &
+	! 	':', timearray(3)
+	! write(*,*) 'After initialization: '
+	! write(*,*) 'number of good connections range: [', minval(parents(:)%n_good),&
+	! & ', ', maxval(parents(:)%n_good), ']'
+	! write(*,*) 'number of bad connections range: [', minval(parents(:)%n_bad),&
+	! & ', ', maxval(parents(:)%n_bad), ']'
+	! write(*,*) 'number of edges range: [', minval(parents(:)%n_edge),&
+	! & ', ', maxval(parents(:)%n_edge), ']'
+	! write(*,*) 'number of used peaks range: [', minval(parents(:)%n_used),&
+	! & ', ', maxval(parents(:)%n_used), ']'
+
+
 	do ind_ns = 1, N_step
 		lucky_ratio = exp(-(ind_ns-N_step/2+2)**2/10.0)
 		if (lucky_ratio .lt. 1e-5)	lucky_ratio = 0
@@ -233,6 +230,7 @@ program assign_nsga2
 					k1 = k1-1
 				end do
 			end if
+
 			! ******** generate new group ********
 			ind_new_group = 0
 			do while (ind_new_group < group_size)
@@ -257,17 +255,18 @@ program assign_nsga2
 						parents2(2) = parents(ind_pool(p2))
 						call crossover(parents2, info_spectrum, connection_table, N_seq, n_table, cnn_row, children2, err_sign)
 						if (err_sign .eq. 0) then
-							!
+
 							do k2 = 1, 2
 								residue_peak = children2(k2)%rsd_pk
 								if (ind_new_group .eq. group_size) exit
+
 								! delete the zero ones & identical one in the group
 								call delete_z_i(residue_peak, parents, offsprings, ind_new_group, N_seq, n_table,&
 								& group_size, del_note)
 								if  (del_note .eq. 1) cycle
 								ind_new_group = ind_new_group + 1
 								offsprings(ind_new_group) = children2(k2)
-								!
+
 								n_good_all(group_size+ind_new_group) = children2(k2)%n_good
 								n_bad_all(group_size+ind_new_group) = children2(k2)%n_bad
 								n_edge_all(group_size+ind_new_group) = children2(k2)%n_edge
@@ -279,12 +278,13 @@ program assign_nsga2
 				if (ind_new_group .eq. group_size) exit
 				call random_number(rand_1)
 				if (rand_1 < mutate_rate) then
+
 					! mutation
 					call random_number(rand_2)
 					p1 = int(rand_2*pool_size)+1
 					call mutation(parents(ind_pool(p1)), info_spectrum, connection_table, N_seq, &
 					& n_table, cnn_row, p_null, child1)
-					!
+
 					! delete the zero ones & identical one in the group
 					call delete_z_i(child1%rsd_pk, parents, offsprings, ind_new_group, N_seq, n_table, &
 					& group_size, del_note)
@@ -309,18 +309,21 @@ program assign_nsga2
 					else
 						call random_number(rand_3)
 						if (rand_3 .ge. 0.5)	then
-							call mutation_ad_2(parents(ind_pool(p1)), info_spectrum, connection_table, &
-							& N_seq, n_table, cnn_row, child1, err_sign)
+							call mutation_ad_2(parents(ind_pool(p1)), &
+								info_spectrum, connection_table, N_seq, &
+								n_table, cnn_row, child1, err_sign)
 						else
-							call mutation_ad_1(parents(ind_pool(p1)), info_spectrum, connection_table, &
-							& N_seq, n_table, cnn_row, child1, err_sign)
+							call mutation_ad_1(parents(ind_pool(p1)), &
+								info_spectrum, connection_table, N_seq, &
+								n_table, cnn_row, child1, err_sign)
 						end if
 					end if
 					if (err_sign .eq. 1) cycle
-					!
+
 					! delete the zero ones & identical one in the group
-					call delete_z_i(child1%rsd_pk, parents, offsprings, ind_new_group, N_seq, n_table, &
-					& group_size, del_note)
+					call delete_z_i(child1%rsd_pk, parents, offsprings, &
+						ind_new_group, N_seq, n_table, group_size, del_note)
+
 					if (del_note .eq. 1) cycle
 					ind_new_group = ind_new_group + 1
 					offsprings(ind_new_group) = child1
@@ -332,29 +335,30 @@ program assign_nsga2
 				end if
 			end do
 
-			! ******** choose the next group based on the fitness of the new group + old group*********
+			! choose the next group based on the fitness of the new group + old group*********
 			num_new_group = ind_new_group
 			size_all = num_new_group+group_size
-			!
 			note_rstr = ind_ns-num_free
-			!
-			call elitism(parents, offsprings, n_good_all, n_bad_all, n_edge_all, n_used_all, group_size, &
-			& N_seq, n_table, note_rstr, temp_p, pareto_order, dist_group,lucky_ratio)
+
+			call elitism(parents, offsprings, n_good_all, n_bad_all, &
+				n_edge_all, n_used_all, group_size, N_seq, n_table, note_rstr, &
+				temp_p, pareto_order, dist_group,lucky_ratio)
 			parents = temp_p
 		end do
-		write(*,*) '--------------------------'
-		write(*,*) 'Finish step: ', ind_ns
-		write(*,*) 'Lucky ratio is: ', lucky_ratio
-		write(*,*) 'number of good connections range: [', minval(parents(:)%n_good),&
-		& ', ', maxval(parents(:)%n_good), ']'
-		write(*,*) 'number of bad connections range: [', minval(parents(:)%n_bad),&
-		& ', ', maxval(parents(:)%n_bad), ']'
-		write(*,*) 'number of edges range: [', minval(parents(:)%n_edge),&
-		& ', ', maxval(parents(:)%n_edge), ']'
-		write(*,*) 'number of used peaks range: [', minval(parents(:)%n_used),&
-		& ', ', maxval(parents(:)%n_used), ']'
+
+		! write(*,*) 'Finish step: ', ind_ns
+		! write(*,*) 'Lucky ratio is: ', lucky_ratio
+		! write(*,*) 'number of good connections range: [', minval(parents(:)%n_good),&
+		! 	', ', maxval(parents(:)%n_good), ']'
+		! write(*,*) 'number of bad connections range: [', minval(parents(:)%n_bad),&
+		! 	', ', maxval(parents(:)%n_bad), ']'
+		! write(*,*) 'number of edges range: [', minval(parents(:)%n_edge),&
+		! 	', ', maxval(parents(:)%n_edge), ']'
+		! write(*,*) 'number of used peaks range: [', minval(parents(:)%n_used),&
+		! 	', ', maxval(parents(:)%n_used), ']'
 	end do
-	! **************************************** output results *****************************************
+
+
 	n_good_all = 0
 	n_bad_all = 0
 	n_edge_all = 0
@@ -367,7 +371,9 @@ program assign_nsga2
 	end do
 	!
 	! sort the group based on the number of bad connections
-	call pareto(obj_4(1:group_size, :), 4, group_size, num_set(1:group_size), Pareto_set(1:group_size), rank)
+	call pareto(obj_4(1:group_size, :), 4, group_size, num_set(1:group_size), &
+		Pareto_set(1:group_size), rank)
+
 	ind_k = 0
 	obj_4(:, 4) = -obj_4(:, 4)
 	do k2 = 1, rank
@@ -384,101 +390,31 @@ program assign_nsga2
 		ind_k = ind_k+num_set(k2)
 	end do
 	parents = temp_p
-	!
-	write(*,*) 	'--------- final results ------------'
-	write(*,*)	'Ng,    Nb,    Ne,    Nu,    Pareto order'
-	do k = 1, group_size
-		write(*, '(i4,2x,i4,3x,i4,3x,i4,8x,i3)')	parents(k)%n_good, parents(k)%n_bad, parents(k)%n_edge, &
-		&parents(k)%n_used, Pareto_order(k)
-	end do
-	!
-	call itime(new_timearray)
-	write(*,*)	'Stop at: ', new_timearray(1), ':', new_timearray(2), ':', new_timearray(3)
-	k = new_timearray(3)+new_timearray(2)*60+new_timearray(1)*3600&
-	&-timearray(3)-timearray(2)*60-timearray(1)*3600
-	p1 = k/3600
-	p2 = (k-p1*3600)/60
-	p3 = k-p1*3600-p2*60
-	write(*,*) 	'Cost time: ', p1, ' hours ', p2, ' minutes ', p3, ' seconds.'
-	!
+
+
+	! Print the results
+	! write(*,*) 	'--------- final results ------------'
+	! write(*,*)	'Ng,    Nb,    Ne,    Nu,    Pareto order'
+	! do k = 1, group_size
+	! 	write(*, '(i4,2x,i4,3x,i4,3x,i4,8x,i3)') parents(k)%n_good, &
+	! 		parents(k)%n_bad, parents(k)%n_edge, parents(k)%n_used, &
+	! 		Pareto_order(k)
+	! end do
+
+	! Print the evaluation time
+	! call itime(new_timearray)
+	! write(*,*)	'Stop at: ', new_timearray(1), ':', new_timearray(2), ':', new_timearray(3)
+	! k = new_timearray(3)+new_timearray(2)*60+new_timearray(1)*3600&
+	! &-timearray(3)-timearray(2)*60-timearray(1)*3600
+	! p1 = k/3600
+	! p2 = (k-p1*3600)/60
+	! p3 = k-p1*3600-p2*60
+	! write(*,*) 	'Cost time: ', p1, ' hours ', p2, ' minutes ', p3, ' seconds.'
+
 	! Output results, generate data files
-	open(10, file = file_out_data)
-	write(10,*)	 'Output_data'
-	do i = 1, group_size
-		do k1 = 1, n_table
-			write(10,*) parents(i)%rsd_pk(:, k1)
-		end do
-	end do
-	close(10)
-	!
-	allocate(freq(n_table, info_spectrum(1)%num_freq))
-	write(fmt_s,'(ai1ai1aa)') '(i4, a2,(',n_table,'(i4,',info_spectrum(1)%num_freq,'f8.1)),a6)'
-	i = 0
-	do k1 = 1, group_size
-		i = i+1
-		p1 = i/100
-		p2 = (i-p1*100)/10
-		p3 = i-p1*100-p2*10
-		open(11, file = trim(adjustL(file_out_tables))//achar(48+p1)//achar(48+p2)//achar(48+p3)//'.txt')
-		write(11,"('Ng, Nb, Ne, Nu and Pareto order: 'I4,2x,I4,2x,I4,2x,I4,2x,I3)") parents(i)%n_good, parents(i)%n_bad, &
-		&parents(i)%n_edge, parents(i)%n_used, Pareto_order(k1)
-		do k2 = 1, N_seq
-			prsd_temp = ''
-			k4 = 0
-			do idx_table = 1, n_table
-				if (parents(k1)%rsd_pk(k2, idx_table) .ne. 0) then
-					do k3 = 1, info_spectrum(idx_table)%num_freq
-						freq(idx_table,k3) = info_spectrum(idx_table)%ch_shifts(parents(k1)%rsd_pk(k2, idx_table),k3)
-						if (freq(idx_table, k3) .ge. 1000)	freq(idx_table, k3) = 0.0
-					end do
-				else
-					freq(idx_table,:) = 0
-				end if
-				k_peak = parents(k1)%rsd_pk(k2, idx_table)
-				prsd_str = info_spectrum(idx_table)%poss_rsd_str(k_peak)
-				lock_n = 0
-				bg_n = 0
-				do k3 = 1, lnblnk(prsd_str)
-					if (prsd_str(k3:k3) .eq. '(') then
-						lock_n = 1
-						cycle;
-					elseif (prsd_str(k3:k3) .eq. ')') then
-						lock_n = 0
-						bg_n = 0
-						cycle;
-					end if
-					if (prsd_str(k3:k3) .eq. residue_seq(k2)) then
-						if (lock_n == 0) then
-							bg_n = 1
-							cycle;
-						end if
-					else
-						if (lock_n == 0) then
-							bg_n = 0
-							cycle;
-						end if
-					end if
-					if (lock_n .eq. 1 .and. bg_n .eq. 1) then
-						k4 = k4+1
-						prsd_temp(k4:k4) = prsd_str(k3:k3)
-					end if
-				end do
-			end do
-			prsd_str = prsd_temp
-			do k3 = lnblnk(prsd_temp), 2, -1
-				do k5 = 1, k3-1
-					if (prsd_temp(k3:k3) .eq. prsd_temp(k5:k5)) then
-						prsd_str = prsd_str(1:k3-1)//prsd_str(k3+1:k4)
-						k4 = k4-1
-						exit
-					end if
-				end do
-			end do
-			write(11,fmt_s) k2, residue_seq(k2), (parents(k1)%rsd_pk(k2, idx_table), freq(idx_table,:), idx_table = 1, n_table), &
-			&prsd_str(1:k4)
-		end do
-		close(11)
-	end do
-	!
-	deallocate(freq)
+	call write_output(file_out_data, group_size, n_table, parents)
+
+	call write_tables(group_size, N_seq, n_table, file_out_tables, parents, &
+		Pareto_order, info_spectrum, residue_seq)
+
 end program

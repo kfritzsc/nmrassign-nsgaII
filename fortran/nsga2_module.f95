@@ -1,7 +1,7 @@
 module nsga2_module
 
 	public :: crossover, mutation, mutation_ad_1, mutation_ad_2, pareto, &
-	crowd_dist, delete_z_i
+		crowd_dist
 
 	private ::	shuffle_y
 
@@ -1002,78 +1002,5 @@ module nsga2_module
 	end do
 	end subroutine elitism
 
-
-	subroutine delete_z_i(residue_peak, parents, offsprings, ind_new_group, &
-		N_seq, n_table, size_group, del_note)
-	!
-	! Delete Individuals with zero
-	! ============================
-	!
-	! Delete the all-zero individuals and identical ones in the group.
-	!
-	! Input
-	! -----
-	! N_seq
-	! n_table
-	! size_group
-	! residue_peak(N_seq, n_table)
-	! parents(size_group)
-	! offsprings(size_group)
-	!
-	! Output
-	! ------
-	! parents(size_group), offsprings(size_group)
-	! del_note
-	!
-	use assign_module
-	implicit none
-
-	integer, intent(in) ::	N_seq, n_table, size_group, ind_new_group
-	integer, intent(in) ::	residue_peak(N_seq, n_table)
-	type(idv), intent(in) :: parents(size_group), offsprings(size_group)
-	integer, intent(out) ::	del_note
-
-	integer ::	diff_residue_peak(N_seq)
-	integer	k, i
-
-	! delete the zero ones & identical one in the group
-	if (all(residue_peak .eq. 0)) then
-		del_note = 1
-		return
-	end if
-	do k = 1, size_group
-		del_note = 1
-		do i = 1, n_table
-			diff_residue_peak = parents(k)%rsd_pk(:, i) - residue_peak(:, i)
-			if (all(diff_residue_peak .eq. 0)) cycle
-			del_note = 0
-			exit
-		end do
-		if (del_note .eq. 0) cycle
-		exit
-	end do
-	if (del_note .eq. 1) then
-		return
-	end if
-
-	if (ind_new_group > 1) then
-		do k = 1, ind_new_group
-			del_note = 1
-			do i = 1, n_table
-				diff_residue_peak = offsprings(k)%rsd_pk(:, i)-residue_peak(:, i)
-				if (all(diff_residue_peak .eq. 0)) then
-					cycle
-				end if
-				del_note = 0
-				exit
-			end do
-			if (del_note .eq. 0) cycle
-			exit
-		end do
-		if (del_note .eq. 1) then
-			return
-		end if
-	end if
-	end subroutine delete_z_i
 
 end module nsga2_module
