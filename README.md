@@ -1,8 +1,8 @@
 nmrassign
 =========
-Python tools for assigning protein NMR data.
+Fortran and Python tools for assigning protein NMR data.
 
-Tools to help assign protein (solid-state) NMR spectra with partial resonance
+Tools to help assign protein (solid-state) NMR spectra with resonance
 overlap and missing peaks.  The project is based on the methods of Tycko *et.
 al.* [1-2] and Yang *et. al.* [3].
 
