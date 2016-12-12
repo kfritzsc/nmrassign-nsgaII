@@ -791,7 +791,8 @@ subroutine write_tables(group_size, N_seq, n_table, file_out_tables, parents, &
 		p2 = (i-p1*100)/10
 		p3 = i-p1*100-p2*10
 		open(11, file = trim(adjustL(file_out_tables))//achar(48+p1)//achar(48+p2)//achar(48+p3)//'.txt')
-		write(11,"('Ng, Nb, Ne, Nu and Pareto order: 'I4,2x,I4,2x,I4,2x,I4,2x,I3)") parents(i)%n_good, parents(i)%n_bad, parents(i)%n_edge, parents(i)%n_used, Pareto_order(k1)
+		write(11,"('Ng, Nb, Ne, Nu and Pareto order: 'I4,2x,I4,2x,I4,2x,I4,2x,I3)") &
+			& parents(i)%n_good, parents(i)%n_bad, parents(i)%n_edge, parents(i)%n_used, Pareto_order(k1)
 		do k2 = 1, N_seq
 			prsd_temp = ''
 			k4 = 0
