@@ -6,6 +6,7 @@ import os
 import unittest
 import shutil
 import tempfile
+
 import nmrassign.fileio as fileio
 
 

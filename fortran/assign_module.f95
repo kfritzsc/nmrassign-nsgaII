@@ -845,8 +845,9 @@ subroutine write_tables(group_size, N_seq, n_table, file_out_tables, parents, &
 					end if
 				end do
 			end do
-			write(11,fmt_s) k2, residue_seq(k2), (parents(k1)%rsd_pk(k2, idx_table), &
-				freq(idx_table,:), idx_table = 1, n_table), prsd_str(1:k4)
+			write(11,*) k2, residue_seq(k2), (parents(k1)%rsd_pk(k2, idx_table), freq(idx_table,:), idx_table = 1, n_table), &
+				&prsd_str(1:k4)
+
 		end do
 		close(11)
 	end do
