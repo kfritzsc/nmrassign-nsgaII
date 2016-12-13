@@ -3,7 +3,13 @@ Functions for reading and writing files for the NMR GA-Assign
 program.
 """
 import re
+import itertools
 import nmrassign.base
+
+def grouper(n, iterable, fillvalue=None):
+    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return itertools.zip_longest(fillvalue=fillvalue, *args)
 
 
 def read_sequence(seq_file):
@@ -347,33 +353,93 @@ def write_control(params, control_file, write_input=False):
         control_file.write('!' + '*' * 20 + '\n')
 
     elif params['method'].lower() == 'nsga2_mc_assign':
-        params['group_size'] = next(control_file).split()[0]
-        params['pool_size'] = next(control_file).split()[0]
-        params['steps'] = next(control_file).split()[0]
-        params['nsga_attempts'] = next(control_file).split()[0]
-        params['mc_attempts'] = next(control_file).split()[0]
-        params['free_steps'] = next(control_file).split()[0]
-        params['mutation_rate'] = next(control_file).split()[0]
-        params['additional_rate'] = next(control_file).split()[0]
-        params['crossover_rate'] = next(control_file).split()[0]
-        params['null_prob'] = next(control_file).split()[0]
-        params['w1_min'] = next(control_file).split()[0]
-        params['w2_min'] = next(control_file).split()[0]
-        params['w3_min'] = next(control_file).split()[0]
-        params['w4_min'] = next(control_file).split()[0]
-        params['w1_max'] = next(control_file).split()[0]
-        params['w2_max'] = next(control_file).split()[0]
-        params['w3_max'] = next(control_file).split()[0]
-        params['w4_max'] = next(control_file).split()[0]
-        line = next(control_file).split()[0]
-        if line != '!':
-            params['random_seed'] = line
-        else:
-            params['random_seed'] = None
+        control_file.write(
+            str(params['group_size']) + '\t! group size\n')
+        control_file.write(
+            str(params['pool_size']) + '\t! pool size\n')
+        control_file.write(
+            str(params['steps']) + '\t! steps\n')
+        control_file.write(
+            str(params['nsga_attempts']) + '\t! steps\n')
+        control_file.write(
+            str(params['mc_attempts']) + '\t! steps\n')
+        control_file.write(
+            str(params['free_steps']) + '\t! free steps\n')
+        control_file.write(
+            str(params['mutation_rate']) + '\t! mutation_rate\n')
+        control_file.write(
+            str(params['additional_rate']) + '\t! additional rate\n')
+        control_file.write(
+            str(params['crossover_rate']) + '\t! crossover rate\n')
+        control_file.write(
+            str(params['null_prob']) + '\t! null prob\n')
+        control_file.write(
+            str(params['w1_min']) + '\t! w1_min\n')
+        control_file.write(
+            str(params['w2_min']) + '\t! w2_min\n')
+        control_file.write(
+            str(params['w3_min']) + '\t! w3_min\n')
+        control_file.write(
+            str(params['w4_min']) + '\t! w4_min\n')
+        control_file.write(
+            str(params['w1_max']) + '\t! w1_max\n')
+        control_file.write(
+            str(params['w2_max']) + '\t! w2_max\n')
+        control_file.write(
+            str(params['w3_max']) + '\t! w3_max\n')
+        control_file.write(
+            str(params['w4_max']) + '\t! w4_max\n')
+
+        if params['random_seed']:
+            control_file.write(
+                str(params['random_seed']) + '\t! random seed\n')
         control_file.write('!' + '*' * 20 + '\n')
 
 
-def read_outtab(outtab_file):
+def read_outdata(params, outdata_file):
+    """
+    Read the output data
+    :param params: algorithm parameters from control file
+    :param outdata_file: open file handel
+    :return spectra assignment:  list of length params['n_spectra']
+        each of length params['group_size'] each of length
+        params['seq'].
+    """
+    next(outdata_file)
+
+    n = params['n_spectra']
+    spectra_assignments = [[] for k in range(n)]
+
+    for lines in grouper(n, outdata_file):
+
+        for k, line in enumerate(lines):
+            values = [int(x) for x in line.split()]
+            spectra_assignments[k].append(values)
+
+    return spectra_assignments
+
+
+def write_outdata(spectra_assignments, outdata_file,
+                  deliminator=' '):
+
+    """
+    Write the output data
+    :param spectra assignment:  list of length params['n_spectra']
+        each of length params['group_size'] each of length
+        params['seq'].
+    :param outdata_file: open file handel
+    """
+    outdata_file.write('Output_data\n')
+
+    for (assign1, assign2) in zip(*spectra_assignments):
+        line1 = deliminator.join(map(str, assign1)) + '\n'
+        line2 = deliminator.join(map(str, assign2)) + '\n'
+
+        outdata_file.write(line1)
+        outdata_file.write(line2)
+
+
+def read_outtab(outtab_file, params):
     """
     Read output table file.
 

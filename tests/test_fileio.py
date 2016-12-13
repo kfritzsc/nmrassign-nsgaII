@@ -51,6 +51,11 @@ class FileIOTest(unittest.TestCase):
                                                   control_nsga_file)
 
         # output files
+        gb1_outdata_file = os.path.join('data', 'gb1_1',
+                                        'outdata.txt')
+        self.gb1_out_file = os.path.join(test_data_dir,
+                                         gb1_outdata_file)
+
         gb1_tab_file = os.path.join('data', 'gb1_1', 'output',
                                     'outtab001.txt')
         self.gb1_tab_file = os.path.join(test_data_dir, gb1_tab_file)
@@ -160,7 +165,7 @@ class FileIOTest(unittest.TestCase):
         Read control file.
         """
         with open(self.gb1_control_nsga_file, 'r') as fid:
-            params = fileio.read_control(fid)
+            params = fileio.read_control(fid, parse_input=True)
             self.assertEqual(params['steps'], 20)
 
     def test_read_control_spot2(self):
@@ -188,6 +193,36 @@ class FileIOTest(unittest.TestCase):
             read_params = fileio.read_control(fid, parse_input=False)
 
         self.assertEqual(params, read_params)
+
+    def test_outdata_read(self):
+        with open(self.gb1_control_nsga_file, 'r') as fid:
+            params = fileio.read_control(fid, parse_input=True)
+
+        with open(self.gb1_out_file, 'r') as fid:
+            assignments = fileio.read_outdata(params, fid)
+
+        self.assertEqual(len(assignments[0]), 100)
+
+    def test_outdata_round_trip(self):
+        """
+        Read control file , write control, read control compare.
+        """
+        with open(self.gb1_control_nsga_file, 'r') as fid:
+            params = fileio.read_control(fid, parse_input=True)
+
+        with open(self.gb1_out_file, 'r') as fid:
+            assignments = fileio.read_outdata(params, fid)
+
+        with open(os.path.join(self.test_dir, 'test_output.txt'),
+                  'w') as fid:
+            fileio.write_outdata(assignments, fid)
+
+        with open(os.path.join(self.test_dir, 'test_output.txt'),
+                  'r') as fid:
+            new_assignments = fileio.read_outdata(params, fid)
+
+        self.assertEqual(assignments, new_assignments)
+
 
 if __name__ == "__main__":
     unittest.main()

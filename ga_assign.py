@@ -1,7 +1,6 @@
 """
-Python script to run a genetic algorithm that assigns NMR data.
-
-1. Yang, Y.; Fritzsching, K. J.; Hong, M. J. Biomol. NMR. 57, 281-296 (2013).
+Python script to mac hypothetical NMR data and run a genetic
+algorithm that assigns NMR data.
 """
 
 from nmrassign.fileio import read_sequence, read_spectrum, read_connection
