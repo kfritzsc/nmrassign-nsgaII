@@ -12,6 +12,7 @@ __pycache__/
 *.mod
 *.o
 
+.idea/*
 
 # Distribution / packaging
 .Python
