@@ -1,6 +1,6 @@
 nmrassign
 =========
-Fortran and Python tools for assigning protein NMR data.
+Fortran and Python tools for assigning protein NMR data with multi-objective optimization.
 
 Tools to help assign protein (solid-state) NMR spectra with resonance
 overlap and missing peaks.  The project is based on the methods of Tycko *et.
@@ -19,7 +19,7 @@ Install
 
 2. **Compile Fortran tools.**
    ```
-   cd project path / fortran/nsga2/
+   cd <project path>/fortran/nsga2/
    make
    ```
    The Makefile works well with gcc-gfortran from brew.
