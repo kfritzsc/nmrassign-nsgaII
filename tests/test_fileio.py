@@ -223,6 +223,42 @@ class FileIOTest(unittest.TestCase):
 
         self.assertEqual(assignments, new_assignments)
 
+    def test_outtab_read(self):
+        """
+        Read outtab file.
+        """
+        with open(self.gb1_control_nsga_file, 'r') as fid:
+            params = fileio.read_control(fid, parse_input=True)
+
+        with open(self.gb1_tab_file, 'r') as fid:
+            score = fileio.read_outtab_score(fid)
+
+        self.assertEqual(score.Nu, 89)
+
+    def test_outtab_read_all_scores(self):
+        """
+        Read outtab file.
+        """
+        with open(self.gb1_control_nsga_file, 'r') as fid:
+            params = fileio.read_control(fid, parse_input=True)
+
+        scores = fileio.read_outtab_scores(params)
+        self.assertEqual(scores[98].Ne, 12)
+
+    def test_outtab_read_all_scores_bad_params(self):
+        """
+        Read outtab file.
+        """
+        bad_params = dict()
+        bad_params['A'] = 1
+        with self.assertRaises(KeyError) as context:
+            fileio.read_outtab_scores(bad_params)
+
+        msg = 'outtab_folder must be a key in params'
+        self.assertTrue(msg, context.exception)
+
+
+
 
 if __name__ == "__main__":
     unittest.main()

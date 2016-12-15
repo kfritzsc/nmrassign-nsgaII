@@ -1,13 +1,22 @@
 """
-Functions for reading and writing files for the NMR GA-Assign
+Functions for reading and writing files for the NMR GA/MC Assignment
 program.
 """
+import os
+import glob
 import re
 import itertools
 import nmrassign.base
 
+
 def grouper(n, iterable, fillvalue=None):
-    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+    """
+    Grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx
+
+    :param n:
+    :param iterable:
+    :param fillvalue:
+    """
     args = [iter(iterable)] * n
     return itertools.zip_longest(fillvalue=fillvalue, *args)
 
@@ -120,7 +129,7 @@ def read_connection(connection_file):
     The first line is count of atom lines. Each of the other lines
     has the connection information for one atom. There are three
     piece of information in each line. The length of the line divided
-    by 3.0 is the number of spectra (n) that the atom is in. The
+    by 3 is the number of spectra (n) that the atom is in. The
     line[:n] is a list of spectra that the atom is in. line[n:n * 2]
     is the atom index in the respective spectra. line[-n:] says how
     the atoms connect to the surrounding residues. If 0 the
@@ -408,7 +417,7 @@ def read_outdata(params, outdata_file):
     next(outdata_file)
 
     n = params['n_spectra']
-    spectra_assignments = [[] for k in range(n)]
+    spectra_assignments = [[] for _ in range(n)]
 
     for lines in grouper(n, outdata_file):
 
@@ -424,10 +433,11 @@ def write_outdata(spectra_assignments, outdata_file,
 
     """
     Write the output data
-    :param spectra assignment:  list of length params['n_spectra']
+    :param spectra_assignments:  list of length params['n_spectra']
         each of length params['group_size'] each of length
         params['seq'].
     :param outdata_file: open file handel
+    :param deliminator: deliminator use ' ', to avoid F90 errors.
     """
     outdata_file.write('Output_data\n')
 
@@ -439,7 +449,7 @@ def write_outdata(spectra_assignments, outdata_file,
         outdata_file.write(line2)
 
 
-def read_outtab(outtab_file, params):
+def read_outtab_score(outtab_file):
     """
     Read output table file.
 
@@ -450,3 +460,31 @@ def read_outtab(outtab_file, params):
     score = nmrassign.base.Score(*values)
 
     return score
+
+
+def read_outtab_scores(params):
+    """
+    Read output table file.
+
+    :param params: dict of control params
+    """
+    try:
+        outab_file_stub = params['outtab_folder']
+    except KeyError:
+        msg = 'outtab_folder must be a key in params'
+        raise KeyError(msg)
+
+    outtab_stub = os.path.basename(outab_file_stub)
+    outtab_folder = os.path.abspath(os.path.dirname(outab_file_stub))
+
+    match = os.path.join(outtab_folder, outtab_stub+'*')
+    outtab_files = glob.glob(match)
+
+    scores = []
+    for outtab_file in outtab_files:
+        with open(outtab_file, 'r') as outtab_fid:
+            score = read_outtab_score(outtab_fid)
+
+        scores.append(score)
+
+    return scores
