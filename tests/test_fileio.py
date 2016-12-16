@@ -113,7 +113,7 @@ class FileIOTest(unittest.TestCase):
         with open(self.gb1_spec_1, 'r') as fid:
             groups = fileio.read_spectrum(fid)
 
-        self.assertEqual(groups[0].assignments, 'KM')
+        self.assertEqual(groups[0].res_poss, 'KM')
 
     def test_groups_assignments_round_trip(self):
         """
@@ -130,8 +130,8 @@ class FileIOTest(unittest.TestCase):
                   'r') as fid:
             new_groups = fileio.read_spectrum(fid)
 
-        self.assertEqual(groups[10].assignments,
-                         new_groups[10].assignments)
+        self.assertEqual(groups[10].res_poss,
+                         new_groups[10].res_poss)
 
     def test_read_connection(self):
         """
@@ -233,7 +233,7 @@ class FileIOTest(unittest.TestCase):
         with open(self.gb1_tab_file, 'r') as fid:
             score = fileio.read_outtab_score(fid)
 
-        self.assertEqual(score.Nu, 89)
+        self.assertEqual(score.nu, 89)
 
     def test_outtab_read_all_scores(self):
         """
@@ -243,7 +243,7 @@ class FileIOTest(unittest.TestCase):
             params = fileio.read_control(fid, parse_input=True)
 
         scores = fileio.read_outtab_scores(params)
-        self.assertEqual(scores[98].Ne, 12)
+        self.assertEqual(scores[98].ne, 12)
 
     def test_outtab_read_all_scores_bad_params(self):
         """
@@ -256,8 +256,6 @@ class FileIOTest(unittest.TestCase):
 
         msg = 'outtab_folder must be a key in params'
         self.assertTrue(msg, context.exception)
-
-
 
 
 if __name__ == "__main__":

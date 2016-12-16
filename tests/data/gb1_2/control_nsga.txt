@@ -1,13 +1,13 @@
 NSGA2_ASSIGN input
 !*****************************************************
-<your/path/to>GB1_seq.txt			!sequence file
-2									!number of spectra
-<your/path/to>FRGB1_NCACX_dr20.txt	!spectrum 1
-<your/path/to>FRGB1_NCOCX_dr20.txt	!spectrum 2
-<your/path/to>GB1_connection.txt	!connection table
-NULL								!initial data file
-<your/path/to>outdata.txt			!output file(data)
-<your/path/to>outtab				!output files(table)
+/Users/kjf/git/nmrassign/tests/data/gb1_2/seq.txt   !sequence file
+2   !number of spectra
+/Users/kjf/git/nmrassign/tests/data/gb1_2/NCACX.txt    !spectrum 1
+/Users/kjf/git/nmrassign/tests/data/gb1_2/NCOCX.txt    !spectrum 2
+/Users/kjf/git/nmrassign/tests/data/gb1_2/connection.txt    !connection table
+NULL    !initial data file
+/Users/kjf/git/nmrassign/tests/data/gb1_2/outdata.txt   !output file(data)
+/Users/kjf/git/nmrassign/tests/data/gb1_2/output/outtab    !output files(table)
 !*****************************************************
 100									!group size
 80									!gene pool size

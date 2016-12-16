@@ -6,6 +6,7 @@ import os
 import glob
 import re
 import itertools
+
 import nmrassign.base
 
 
@@ -451,7 +452,7 @@ def write_outdata(spectra_assignments, outdata_file,
 
 def read_outtab_score(outtab_file):
     """
-    Read output table file.
+    Read the score from a single output table file.
 
     :param outtab_file: file name with path.
     """
@@ -464,7 +465,7 @@ def read_outtab_score(outtab_file):
 
 def read_outtab_scores(params):
     """
-    Read output table file.
+    Read the scores from all the output table files.
 
     :param params: dict of control params
     """
