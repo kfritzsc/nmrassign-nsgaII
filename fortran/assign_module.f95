@@ -1,8 +1,9 @@
 module assign_module
 
 	implicit none
-	public :: read_control_file, read_sequence_file, evaluate_group, &
-		delete_z_i, write_tables
+	public :: read_control_file, read_sequence_file, read_peak_files, &
+		read_connection_file, initialize, evaluate_peak_rsd, evaluate_idv, &
+		evaluate_group, delete_z_i, write_output, write_tables
 
 	type info_spectra
 	!

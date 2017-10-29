@@ -13,7 +13,6 @@
 ! Reference
 ! ---------
 ! Based on algorithm from Cormen et al., Introduction to Algorithms, 1997
-!
 
 module qsort_c_module
 

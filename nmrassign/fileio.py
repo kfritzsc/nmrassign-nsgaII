@@ -423,15 +423,14 @@ def read_outdata(params, outdata_file):
     for lines in grouper(n, outdata_file):
 
         for k, line in enumerate(lines):
-            values = [int(x) for x in line.split()]
+            values = [int(x)-1 for x in line.split()]
+            values = [x if x >= 0 else None for x in values]
             spectra_assignments[k].append(values)
 
     return spectra_assignments
 
 
-def write_outdata(spectra_assignments, outdata_file,
-                  deliminator=' '):
-
+def write_outdata(spectra_assignments, outdata_file, deliminator=' '):
     """
     Write the output data
     :param spectra_assignments:  list of length params['n_spectra']
@@ -442,12 +441,11 @@ def write_outdata(spectra_assignments, outdata_file,
     """
     outdata_file.write('Output_data\n')
 
-    for (assign1, assign2) in zip(*spectra_assignments):
-        line1 = deliminator.join(map(str, assign1)) + '\n'
-        line2 = deliminator.join(map(str, assign2)) + '\n'
-
-        outdata_file.write(line1)
-        outdata_file.write(line2)
+    for assigns in zip(*spectra_assignments):
+        for assign in assigns:
+            line = [0 if x is None else x+1 for x in assign]
+            line = deliminator.join(map(str, line)) + '\n'
+            outdata_file.write(line)
 
 
 def read_outtab_score(outtab_file):

@@ -13,12 +13,12 @@ Install
 -------
 
 1. **Install python tools.**
-   ```
+   ``` bash
    python setup.py install
    ```
 
 2. **Compile Fortran tools.**
-   ```
+   ``` bash
    cd <project path>/fortran/nsga2/
    make
    ```

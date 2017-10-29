@@ -3,13 +3,7 @@ Combination NSGA-II/MC NMR Assignment
 
 Algorithm for automatic SSNMR resonance assignment
 
-The Fortran code contains three files: `main_program.f95` (main program),
-sub_source.f95 (contains all the subroutines of the NSGA-II algorithm) and
-`qsort.f95` (this quicksort code is downloaded from the internet). All three
-files should be added to a fortran project and compiled to make an executable
-file, or you can use the executable file nsga2mc_assign in a Unix system.
-
-As created using AbsoftTools Pro Fortran compiler 11.0.0 for Mac.
+With gcc-gfortrain installed, type make to compile the Fortran code.
 
 How to run
 ----------

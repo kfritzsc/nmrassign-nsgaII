@@ -33,31 +33,24 @@ class FileIOTest(unittest.TestCase):
         self.gb1_seq_fasta = os.path.join(test_data_dir, seq_file)
 
         seq_file = os.path.join('data', 'gb1_1', 'bad_seq.fasta')
-        self.gb1_bad_seq_fasta = os.path.join(test_data_dir,
-                                              seq_file)
+        self.gb1_bad_seq_fasta = os.path.join(test_data_dir, seq_file)
 
         # other files.
         gb1_spec_file_1 = os.path.join('data', 'gb1_1', 'NCACX.txt')
-        self.gb1_spec_1 = os.path.join(test_data_dir,
-                                       gb1_spec_file_1)
-        gb1_con_file = os.path.join('data', 'gb1_1',
-                                    'connection.txt')
+        self.gb1_spec_1 = os.path.join(test_data_dir, gb1_spec_file_1)
+        gb1_con_file = os.path.join('data', 'gb1_1', 'connection.txt')
         self.gb1_con = os.path.join(test_data_dir, gb1_con_file)
 
         # control file
-        control_nsga_file = os.path.join('data', 'gb1_1',
-                                         'control_nsga.txt')
-        self.gb1_control_nsga_file = os.path.join(test_data_dir,
-                                                  control_nsga_file)
+        control_nsga_file = os.path.join('data', 'gb1_1', 'control_nsga.txt')
+        self.gb1_control_nsga_file = os.path.join(
+            test_data_dir, control_nsga_file)
 
         # output files
-        gb1_outdata_file = os.path.join('data', 'gb1_1',
-                                        'outdata.txt')
-        self.gb1_out_file = os.path.join(test_data_dir,
-                                         gb1_outdata_file)
+        gb1_outdata_file = os.path.join('data', 'gb1_1', 'outdata.txt')
+        self.gb1_out_file = os.path.join(test_data_dir, gb1_outdata_file)
 
-        gb1_tab_file = os.path.join('data', 'gb1_1', 'output',
-                                    'outtab001.txt')
+        gb1_tab_file = os.path.join('data', 'gb1_1', 'output', 'outtab001.txt')
         self.gb1_tab_file = os.path.join(test_data_dir, gb1_tab_file)
 
     def tearDown(self):
@@ -84,8 +77,8 @@ class FileIOTest(unittest.TestCase):
         """
         Read_sequence for a fasta file with multiple sequences.
 
-        In this case it is not known which sequence should be used
-        so a ValueError should be thrown.
+        In this case it is not known which sequence should be used so a
+        ValueError should be thrown.
         """
         with open(self.gb1_bad_seq_fasta, 'r') as fid:
             self.assertRaises(ValueError, fileio.read_sequence, fid)
@@ -122,12 +115,10 @@ class FileIOTest(unittest.TestCase):
         with open(self.gb1_spec_1, 'r') as fid:
             groups = fileio.read_spectrum(fid)
 
-        with open(os.path.join(self.test_dir, 'test_spec_1.txt'),
-                  'w') as fid:
+        with open(os.path.join(self.test_dir, 'test_spec_1.txt'), 'w') as fid:
             fileio.write_spectrum(groups, fid)
 
-        with open(os.path.join(self.test_dir, 'test_spec_1.txt'),
-                  'r') as fid:
+        with open(os.path.join(self.test_dir, 'test_spec_1.txt'), 'r') as fid:
             new_groups = fileio.read_spectrum(fid)
 
         self.assertEqual(groups[10].res_poss,
@@ -150,12 +141,10 @@ class FileIOTest(unittest.TestCase):
         with open(self.gb1_con, 'r') as fid:
             connections = fileio.read_connection(fid)
 
-        with open(os.path.join(self.test_dir, 'test_conn.txt'),
-                  'w') as fid:
+        with open(os.path.join(self.test_dir, 'test_conn.txt'), 'w') as fid:
             fileio.write_connection(connections, fid)
 
-        with open(os.path.join(self.test_dir, 'test_conn.txt'),
-                  'r') as fid:
+        with open(os.path.join(self.test_dir, 'test_conn.txt'), 'r') as fid:
             new_connections = fileio.read_connection(fid)
 
         self.assertEqual(connections, new_connections)
@@ -184,12 +173,10 @@ class FileIOTest(unittest.TestCase):
         with open(self.gb1_control_nsga_file, 'r') as fid:
             params = fileio.read_control(fid, parse_input=False)
 
-        with open(os.path.join(self.test_dir, 'test_control.txt'),
-                  'w') as fid:
+        with open(os.path.join(self.test_dir, 'test_control.txt'), 'w') as fid:
             fileio.write_control(params, fid, write_input=False)
 
-        with open(os.path.join(self.test_dir, 'test_control.txt'),
-                  'r') as fid:
+        with open(os.path.join(self.test_dir, 'test_control.txt'), 'r') as fid:
             read_params = fileio.read_control(fid, parse_input=False)
 
         self.assertEqual(params, read_params)
@@ -213,12 +200,10 @@ class FileIOTest(unittest.TestCase):
         with open(self.gb1_out_file, 'r') as fid:
             assignments = fileio.read_outdata(params, fid)
 
-        with open(os.path.join(self.test_dir, 'test_output.txt'),
-                  'w') as fid:
+        with open(os.path.join(self.test_dir, 'test_output.txt'), 'w') as fid:
             fileio.write_outdata(assignments, fid)
 
-        with open(os.path.join(self.test_dir, 'test_output.txt'),
-                  'r') as fid:
+        with open(os.path.join(self.test_dir, 'test_output.txt'), 'r') as fid:
             new_assignments = fileio.read_outdata(params, fid)
 
         self.assertEqual(assignments, new_assignments)
@@ -227,9 +212,6 @@ class FileIOTest(unittest.TestCase):
         """
         Read outtab file.
         """
-        with open(self.gb1_control_nsga_file, 'r') as fid:
-            params = fileio.read_control(fid, parse_input=True)
-
         with open(self.gb1_tab_file, 'r') as fid:
             score = fileio.read_outtab_score(fid)
 
@@ -243,7 +225,7 @@ class FileIOTest(unittest.TestCase):
             params = fileio.read_control(fid, parse_input=True)
 
         scores = fileio.read_outtab_scores(params)
-        self.assertEqual(scores[98].ne, 12)
+        self.assertEqual(scores[98].ne, 9)
 
     def test_outtab_read_all_scores_bad_params(self):
         """

@@ -30,11 +30,16 @@ class PeakGroup(object):
         self.num_used = num_used
 
     def __str__(self):
-        return '{}, {}, {}'.format(self.peaks, self.res_poss,
-                                   self.num)
+        return '{}, {}'.format(self.peaks, self.res_poss)
 
     def spectrum_line_str(self, delimiter=' '):
-        line = [x.poss for x in self.peaks]
+        line = []
+        for x in self.peaks:
+            if x.poss:
+                line.append(x.poss)
+            else:
+                line.append(5000)
+
         line += [x.width for x in self.peaks]
         line += [self.degeneracy, ''.join(self.res_poss)]
         return delimiter.join(map(str, line))
