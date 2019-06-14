@@ -22,7 +22,7 @@ Install
    cd <project path>/fortran/nsga2/
    make
    ```
-   The Makefile works well with gcc-gfortran from brew.
+   The Makefile works well with gcc-gfortran version 6 from brew.
 
 References
 ----------

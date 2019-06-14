@@ -11,9 +11,8 @@ How to run
 When executing this program, first the terminal will display: 'Enter control
 file name:'. This is where you input the name and path of the control file.
 Then you can verify the input information included in the control file at the
-command window. If the parameters are set correctly, the program will ask you
-to input a random seed (choose any integer number you like). Wait for sometime
-(normally 10 - 30 minutes) and check the output files (they will be at the
+command window.  Wait for sometime
+(normally 5 - 60 minutes) and check the output files (they will be at the
 file path you set).
 
 Input files

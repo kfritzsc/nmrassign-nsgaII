@@ -12,8 +12,13 @@ with open(output_file, 'r') as output_fid:
     spectra_assignments = nmrassign.fileio.read_outdata(params, output_fid)
 
 
-spectrum_assign_list = nmrassign.analysis.assignment_list(spectra_assignments)
+# Analyze the data
+scores = nmrassign.fileio.read_outtab_scores(params)
+top_paretos = nmrassign.analysis.keep_pareto_order(scores)
+pareto_assigns = nmrassign.analysis.pareto_filter(
+    spectra_assignments, top_paretos)
 
+spectrum_assign_list = nmrassign.analysis.assignment_list(pareto_assigns)
 
 for res_assignment in zip(*spectrum_assign_list):
     print(res_assignment)
