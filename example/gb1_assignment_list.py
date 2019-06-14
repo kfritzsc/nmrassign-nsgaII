@@ -20,5 +20,20 @@ pareto_assigns = nmrassign.analysis.pareto_filter(
 
 spectrum_assign_list = nmrassign.analysis.assignment_list(pareto_assigns)
 
-for res_assignment in zip(*spectrum_assign_list):
-    print(res_assignment)
+with open('gb1_output_list.txt', 'w') as fid:
+
+    for n, res_assignment in enumerate(zip(*spectrum_assign_list)):
+
+        nca = ', '.join(map(str, res_assignment[0][0]))
+        nco = ', '.join(map(str, res_assignment[1][0]))
+
+        score_nca = ', '.join(map(str, res_assignment[0][1]))
+        score_nco = ', '.join(map(str, res_assignment[1][1]))
+
+        line = '\t'.join(map(str, [n+1, nca, nco, score_nca, score_nco]))
+        line +='\n'
+
+        fid.write(line)
+
+
+

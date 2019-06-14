@@ -73,8 +73,10 @@ def assignment_list(assignments):
     spectrum_assign_list = []
 
     for spectrum_assign in assignments:
+
         assignments_list = []
         scores_list = []
+
         for res_assign in zip(*spectrum_assign):
             count = Counter(res_assign)
 
