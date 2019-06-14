@@ -67,3 +67,23 @@ def assignment_stats(assignments):
         mode_probs.append(mode_spectrum_prob)
 
     return mode_assignments, mode_probs
+
+
+def assignment_list(assignments):
+    spectrum_assign_list = []
+
+    for spectrum_assign in assignments:
+        assignments_list = []
+        scores_list = []
+        for res_assign in zip(*spectrum_assign):
+            count = Counter(res_assign)
+
+            # Grab the key and counts
+            assignments = tuple(count.keys())
+            scores = tuple(count[x] for x in assignments)
+
+            assignments_list.append(assignments)
+            scores_list.append(scores)
+
+        spectrum_assign_list.append(zip(assignments_list, scores_list))
+    return spectrum_assign_list

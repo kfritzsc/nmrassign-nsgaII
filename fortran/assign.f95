@@ -1,4 +1,4 @@
-module assign_module
+module assign
 
 	implicit none
 	public :: read_control_file, read_sequence_file, read_peak_files, &

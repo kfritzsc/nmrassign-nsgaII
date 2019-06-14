@@ -1,6 +1,6 @@
 program assign_nsgaii_mc
-	use qsort_c_module
-	use nsga2_module
+	use qsort
+	use nsga2
 	implicit none
 !	!**************************************************
 	! parameters of typical example (from input)

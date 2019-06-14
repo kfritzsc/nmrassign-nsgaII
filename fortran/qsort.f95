@@ -14,7 +14,7 @@
 ! ---------
 ! Based on algorithm from Cormen et al., Introduction to Algorithms, 1997
 
-module qsort_c_module
+module qsort
 
 implicit none
 public :: QsortC
@@ -75,4 +75,4 @@ subroutine Partition(A, ind_A, marker)
 
 end subroutine Partition
 
-end module qsort_c_module
+end module qsort

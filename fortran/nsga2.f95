@@ -1,4 +1,4 @@
-module nsga2_module
+module nsga2
 
 	public :: crossover, mutation, mutation_ad_1, mutation_ad_2, pareto, &
 		crowd_dist
@@ -67,7 +67,7 @@ module nsga2_module
 	! -------
 	! children2: two children
 	!
-	use assign_module
+	use assign
 	implicit none
 
 	type(idv), intent(in)	::	parents2(2)
@@ -210,7 +210,7 @@ module nsga2_module
 	! new_asg
 	! new_idx
 
-	use assign_module
+	use assign
 	implicit none
 
 	integer, intent(in) ::	N_seq, n_table, cnn_row
@@ -315,7 +315,7 @@ module nsga2_module
 	! new_asg
 	! new_idx
 	!
-	use assign_module
+	use assign
 	implicit none
 
 	integer, intent(in) ::	N_seq, n_table, cnn_row
@@ -465,7 +465,7 @@ module nsga2_module
 	! err_sign
 	!
 
-	use assign_module
+	use assign
 	implicit none
 
 	type(idv), intent(in) ::	parent1
@@ -837,7 +837,7 @@ module nsga2_module
 	! num_set(size_all), P_set(size_all), rank
 	!
 
-	use qsort_c_module
+	use qsort
 	implicit none
 
 	integer,intent(in) ::	num_obj, size_s
@@ -902,8 +902,8 @@ module nsga2_module
 	! ------
 	! group_new(size_group), pareto_order(size_group), dist_group(size_group)
 	!
-	use assign_module
-	use qsort_c_module
+	use assign
+	use qsort
 	implicit none
 
 	integer, intent(in) :: size_group, N_seq, n_table, note_rstr
@@ -1003,4 +1003,4 @@ module nsga2_module
 	end subroutine elitism
 
 
-end module nsga2_module
+end module nsga2

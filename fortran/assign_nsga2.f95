@@ -1,8 +1,8 @@
 program assign_nsga2
 
-	use qsort_c_module
-	use assign_module
-	use nsga2_module
+	use qsort
+	use assign
+	use nsga2
 	implicit none
 
 	! parameters of typical example from input file.
